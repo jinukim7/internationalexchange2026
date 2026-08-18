@@ -728,6 +728,68 @@ async function loadVal(k){
 }
 
 /* ═══════════ 번역 ═══════════ */
+
+/* ═══ 로마자 → 가나 (구글 번역이 주는 발음을 한글로 옮기기 위해) ═══ */
+var RM={
+ "kya":"きゃ","kyu":"きゅ","kyo":"きょ","gya":"ぎゃ","gyu":"ぎゅ","gyo":"ぎょ",
+ "sha":"しゃ","shu":"しゅ","sho":"しょ","sya":"しゃ","syu":"しゅ","syo":"しょ",
+ "ja":"じゃ","ju":"じゅ","jo":"じょ","jya":"じゃ","jyu":"じゅ","jyo":"じょ",
+ "cha":"ちゃ","chu":"ちゅ","cho":"ちょ","cya":"ちゃ","cyu":"ちゅ","cyo":"ちょ",
+ "nya":"にゃ","nyu":"にゅ","nyo":"にょ","hya":"ひゃ","hyu":"ひゅ","hyo":"ひょ",
+ "bya":"びゃ","byu":"びゅ","byo":"びょ","pya":"ぴゃ","pyu":"ぴゅ","pyo":"ぴょ",
+ "mya":"みゃ","myu":"みゅ","myo":"みょ","rya":"りゃ","ryu":"りゅ","ryo":"りょ",
+ "shi":"し","chi":"ち","tsu":"つ",
+ "ka":"か","ki":"き","ku":"く","ke":"け","ko":"こ",
+ "ga":"が","gi":"ぎ","gu":"ぐ","ge":"げ","go":"ご",
+ "sa":"さ","si":"し","su":"す","se":"せ","so":"そ",
+ "za":"ざ","ji":"じ","zi":"じ","zu":"ず","ze":"ぜ","zo":"ぞ",
+ "ta":"た","ti":"ち","tu":"つ","te":"て","to":"と",
+ "da":"だ","di":"ぢ","du":"づ","de":"で","do":"ど",
+ "na":"な","ni":"に","nu":"ぬ","ne":"ね","no":"の",
+ "ha":"は","hi":"ひ","fu":"ふ","hu":"ふ","he":"へ","ho":"ほ",
+ "ba":"ば","bi":"び","bu":"ぶ","be":"べ","bo":"ぼ",
+ "pa":"ぱ","pi":"ぴ","pu":"ぷ","pe":"ぺ","po":"ぽ",
+ "ma":"ま","mi":"み","mu":"む","me":"め","mo":"も",
+ "ya":"や","yu":"ゆ","yo":"よ",
+ "ra":"ら","ri":"り","ru":"る","re":"れ","ro":"ろ",
+ "wa":"わ","wo":"を","we":"うぇ","wi":"うぃ",
+ "a":"あ","i":"い","u":"う","e":"え","o":"お"
+};
+function romajiToKana(src){
+  var v=String(src).toLowerCase()
+    .replace(/[āâ]/g,"aa").replace(/[īî]/g,"ii").replace(/[ūû]/g,"uu")
+    .replace(/[ēê]/g,"ei").replace(/[ōô]/g,"ou")
+    .replace(/[’`]/g,"'");
+  var out="",i=0;
+  while(i<v.length){
+    var c=v[i];
+    if(!/[a-z']/.test(c)){ out+=(c===" "?" ":c); i++; continue; }
+    if(c==="'"){ i++; continue; }
+    /* 촉음: 같은 자음 반복 */
+    var nx=v[i+1];
+    if(nx===c && !/[aiueon]/.test(c)){ out+="っ"; i++; continue; }
+    /* 발음 ん */
+    if(c==="n"){
+      var n1=v[i+1];
+      if(n1===undefined || !/[aiueoy]/.test(n1)){ out+="ん"; i++; continue; }
+      if(n1==="n"){ out+="ん"; i+=2; continue; }
+    }
+    var hit=null,len=0;
+    for(var L=3;L>=1;L--){
+      var seg=v.substr(i,L);
+      if(RM[seg]){ hit=RM[seg]; len=L; break; }
+    }
+    if(hit){ out+=hit; i+=len; }
+    else i++;
+  }
+  return out;
+}
+function romajiReading(rm){
+  if(!rm)return "";
+  var r=kanaToHangul(romajiToKana(rm));
+  return readingOk(r)?r:"";
+}
+
 /* ═══ 검증된 문장 사전 — API보다 먼저, 오프라인 동작 ═══ */
 var EXTRA=[
  {ko:"힘들면 말해",ja:"つかれたら言ってね",rk:"츠카레타라 잇테네",rj:"ヒムドゥルミョン マレ"},
@@ -810,9 +872,44 @@ async function translateClaude(text,toJa){
   if(toJa && !r.reading) r.note=t("noRead")+(TTS?" "+t("useSay"):"");
   return r;
 }
+function fetchTimeout(url,ms){
+  var ctl = (typeof AbortController!=="undefined") ? new AbortController() : null;
+  var opt = ctl ? {signal:ctl.signal} : {};
+  var timer = setTimeout(function(){ if(ctl)ctl.abort(); }, ms||7000);
+  return fetch(url,opt).then(function(r){ clearTimeout(timer); return r; },
+                            function(e){ clearTimeout(timer); throw e; });
+}
+
+/* 구글 무료 엔드포인트 — 번역문 + 로마자 발음을 함께 준다 */
+async function translateGoogle(text,toJa){
+  var url="https://translate.googleapis.com/translate_a/single?client=gtx&dt=t&dt=rm"+
+    "&sl="+(toJa?"ko":"ja")+"&tl="+(toJa?"ja":"ko")+"&q="+encodeURIComponent(text);
+  var res=await fetchTimeout(url,7000);
+  if(!res.ok)throw new Error("g");
+  var d=await res.json();
+  if(!d||!d[0]||!d[0].length)throw new Error("g");
+  var tx="",rm="";
+  for(var i=0;i<d[0].length;i++){
+    var seg=d[0][i]; if(!seg)continue;
+    if(seg[0]) tx+=seg[0];
+    if(seg[3]&&!seg[0]) rm+=seg[3]+" ";
+    else if(seg[2]&&!seg[0]) rm+=seg[2]+" ";
+  }
+  tx=String(tx).trim(); rm=String(rm).trim();
+  if(!tx)throw new Error("g");
+  var rd="";
+  if(toJa){
+    rd = safeReading(tx);
+    if(!rd && rm) rd = romajiReading(rm);
+  }
+  var nt=t("autoNote");
+  if(toJa && !rd) nt=t("noRead")+(TTS?" "+t("useSay"):"");
+  return {target:tx, reading:rd, note:nt};
+}
+
 async function translateFree(text,toJa){
   var url="https://api.mymemory.translated.net/get?q="+encodeURIComponent(text)+"&langpair="+(toJa?"ko|ja":"ja|ko");
-  var res=await fetch(url);
+  var res=await fetchTimeout(url,7000);
   if(!res.ok)throw new Error("free");
   var d=await res.json();
   var tx=d&&d.responseData&&d.responseData.translatedText;
@@ -825,7 +922,12 @@ async function translateFree(text,toJa){
 async function doTranslate(text,toJa){
   var hit=lookupLocal(text,toJa);
   if(hit)return hit;
-  try{ return await translateClaude(text,toJa); }
+  /* API 키가 있을 때만 Claude를 쓴다.
+     키 없이 미리보기에서만 통하던 경로를 없애, 어디에 올려도 결과가 같도록 한다. */
+  if(CONFIG.apiKey){
+    try{ return await translateClaude(text,toJa); }catch(e){}
+  }
+  try{ return await translateGoogle(text,toJa); }
   catch(e){ return await translateFree(text,toJa); }
 }
 
