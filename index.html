@@ -304,6 +304,10 @@ var T={
   mapLbl:{ko:"지도",ja:"地図"},
   missionLbl:{ko:"미션",ja:"ミッション"},
   sayLbl:{ko:"소리로 듣기",ja:"音声で聞く"},
+  fromBook:{ko:"회화 탭에도 있는 문장이에요. 발음이 정확합니다.",ja:"「会話」タブにもある文です。発音は正確です。"},
+  autoNote:{ko:"자동 번역이라 말투가 딱딱할 수 있어요. 회화 탭의 문장이 더 자연스럽습니다.",ja:"自動翻訳なので固い言い方になることがあります。「会話」タブの文のほうが自然です。"},
+  noRead:{ko:"한자가 있어 한글 발음을 표시할 수 없어요.",ja:"漢字があるため、読み方は表示できません。"},
+  useSay:{ko:"🔊 버튼을 누르면 정확하게 읽어줍니다.",ja:"🔊 ボタンを押すと正しく読み上げます。"},
   micKo:{ko:"한국어로 말하기",ja:"韓国語で話す"},
   micJa:{ko:"일본어로 말하기",ja:"日本語で話す"},
   micOn:{ko:"듣고 있어요. 또박또박 말해보세요.",ja:"聞いています。はっきり話してみてください。"},
@@ -661,7 +665,26 @@ function longVowel(out,ch){
   if(ch==="이"&&(med===5||med===1||med===20))return "-";
   return ch;
 }
+function hasKanji(s){return /[\u4E00-\u9FFF\u3400-\u4DBF]/.test(String(s));}
+/* 한글 발음으로 온전히 바뀌지 않았으면(한자·가나 잔존) 표시하지 않는다 */
+function readingOk(r){
+  if(!r)return false;
+  return !/[\u4E00-\u9FFF\u3400-\u4DBF\u3040-\u309F\u30A0-\u30FF]/.test(r);
+}
+function safeReading(ja){
+  if(hasKanji(ja))return "";
+  var r=kanaToHangul(ja);
+  return readingOk(r)?r:"";
+}
+/* 조사로 쓰여 예외적으로 읽는 표기 */
+var KANA_FIX=[
+  [/こんにちは/g,"こんにちわ"],[/コンニチハ/g,"こんにちわ"],
+  [/こんばんは/g,"こんばんわ"],[/コンバンハ/g,"こんばんわ"],
+  [/では/g,"でわ"],[/には/g,"にわ"],[/とは/g,"とわ"]
+];
 function kanaToHangul(text){
+  text=String(text);
+  for(var f=0;f<KANA_FIX.length;f++) text=text.replace(KANA_FIX[f][0],KANA_FIX[f][1]);
   var s="";
   for(var i=0;i<text.length;i++){
     var c=text.charCodeAt(i);
@@ -673,7 +696,15 @@ function kanaToHangul(text){
     if(two.length===2&&KANA[two]){out+=longVowel(out,KANA[two]);j+=2;continue;}
     var one=s[j];
     if(one==="っ"){out=addFinal(out,19);j++;continue;}
-    if(one==="ん"){out=addFinal(out,4)||(out+"ㄴ");j++;continue;}
+    if(one==="ん"){
+      /* ん은 뒤 음에 따라 ㅁ(ば·ぱ·ま행) · ㅇ(か·が행) · ㄴ 으로 갈린다 */
+      var nx=s[j+1]||"", fin=4;
+      if(/[ばびぶべぼぱぴぷぺぽまみむめも]/.test(nx)) fin=16;
+      else if(/[かきくけこがぎぐげご]/.test(nx)) fin=21;
+      var moved=addFinal(out,fin);
+      out=(moved!==out)?moved:(out+(fin===16?"ㅁ":fin===21?"ㅇ":"ㄴ"));
+      j++;continue;
+    }
     if(one==="ー"||one==="－"){out+="-";j++;continue;}
     if(KANA[one]){out+=longVowel(out,KANA[one]);j++;continue;}
     out+=one;j++;
@@ -697,6 +728,58 @@ async function loadVal(k){
 }
 
 /* ═══════════ 번역 ═══════════ */
+/* ═══ 검증된 문장 사전 — API보다 먼저, 오프라인 동작 ═══ */
+var EXTRA=[
+ {ko:"힘들면 말해",ja:"つかれたら言ってね",rk:"츠카레타라 잇테네",rj:"ヒムドゥルミョン マレ"},
+ {ko:"사진 찍자",ja:"写真撮ろう",rk:"샤신 토로-",rj:"サジン チクチャ"},
+ {ko:"안녕",ja:"こんにちは",rk:"콘니치와",rj:"アンニョン"},
+ {ko:"미안",ja:"ごめん",rk:"고멘",rj:"ミアン"},
+ {ko:"응",ja:"うん",rk:"운",rj:"ウン"},
+ {ko:"알겠어",ja:"わかった",rk:"와캇타",rj:"アルゲッソ"},
+ {ko:"몰라",ja:"わからない",rk:"와카라나이",rj:"モルラ"},
+ {ko:"좋아",ja:"いいよ",rk:"이-요",rj:"チョア"},
+ {ko:"싫어",ja:"いやだ",rk:"이야다",rj:"シロ"},
+ {ko:"진짜?",ja:"ほんとう？",rk:"혼토-?",rj:"チンチャ?"},
+ {ko:"재밌다",ja:"おもしろい",rk:"오모시로이",rj:"チェミッタ"},
+ {ko:"귀엽다",ja:"かわいい",rk:"카와이-",rj:"クィヨプタ"},
+ {ko:"맛있다",ja:"おいしい",rk:"오이시-",rj:"マシッタ"},
+ {ko:"덥다",ja:"あつい",rk:"아츠이",rj:"トプタ"},
+ {ko:"피곤해",ja:"つかれた",rk:"츠카레타",rj:"ピゴネ"},
+ {ko:"조금만",ja:"ちょっとだけ",rk:"촛토다케",rj:"チョグムマン"},
+ {ko:"빨리",ja:"はやく",rk:"하야쿠",rj:"パルリ"},
+ {ko:"천천히",ja:"ゆっくり",rk:"윳쿠리",rj:"チョンチョニ"},
+ {ko:"여기",ja:"ここ",rk:"코코",rj:"ヨギ"},
+ {ko:"저기",ja:"あそこ",rk:"아소코",rj:"チョギ"},
+ {ko:"기다려",ja:"まって",rk:"맛테",rj:"キダリョ"},
+ {ko:"가자",ja:"いこう",rk:"이코-",rj:"カジャ"},
+ {ko:"먹자",ja:"たべよう",rk:"타베요-",rj:"モクチャ"},
+ {ko:"미안해요",ja:"すみません",rk:"스미마센",rj:"ミアネヨ"},
+ {ko:"감사합니다",ja:"ありがとうございます",rk:"아리가토- 고자이마스",rj:"カムサハムニダ"}
+];
+var LOCAL=null;
+function normKey(v){
+  return String(v).toLowerCase()
+    .replace(/[\s\u3000]/g,"")
+    .replace(/[.!?~…。、，,！？·・]/g,"");
+}
+function buildLocal(){
+  LOCAL={ko:{},ja:{}};
+  function add(p){
+    if(!p.ko||!p.ja)return;
+    var k=normKey(p.ko), j=normKey(p.ja);
+    if(!LOCAL.ko[k])LOCAL.ko[k]={target:p.ja,reading:p.rk||""};
+    if(!LOCAL.ja[j])LOCAL.ja[j]={target:p.ko,reading:p.rj||""};
+  }
+  PHRASES.forEach(function(g){g.forEach(add);});
+  EXTRA.forEach(add);
+}
+function lookupLocal(text,toJa){
+  if(!LOCAL)buildLocal();
+  var hit=(toJa?LOCAL.ko:LOCAL.ja)[normKey(text)];
+  if(!hit)return null;
+  return {target:hit.target, reading:hit.reading||"", note:t("fromBook")};
+}
+
 async function translateClaude(text,toJa){
   var target=toJa?"일본어":"한국어";
   var readLabel=toJa
@@ -719,7 +802,13 @@ async function translateClaude(text,toJa){
   var data=await res.json();
   var raw=data.content.filter(function(b){return b.type==="text";})
     .map(function(b){return b.text;}).join("").replace(/```json|```/g,"").trim();
-  return JSON.parse(raw);
+  var r=JSON.parse(raw);
+  r.target=String(r.target||"");
+  r.reading=String(r.reading||"");
+  r.note=String(r.note||"");
+  if(toJa && !readingOk(r.reading)) r.reading=safeReading(r.target);
+  if(toJa && !r.reading) r.note=t("noRead")+(TTS?" "+t("useSay"):"");
+  return r;
 }
 async function translateFree(text,toJa){
   var url="https://api.mymemory.translated.net/get?q="+encodeURIComponent(text)+"&langpair="+(toJa?"ko|ja":"ja|ko");
@@ -728,9 +817,14 @@ async function translateFree(text,toJa){
   var d=await res.json();
   var tx=d&&d.responseData&&d.responseData.translatedText;
   if(!tx)throw new Error("free");
-  return {target:tx, reading:toJa?kanaToHangul(tx):"", note:""};
+  var rd = toJa ? safeReading(tx) : "";
+  var nt = t("autoNote");
+  if(toJa && !rd) nt = t("noRead") + (TTS ? " " + t("useSay") : "");
+  return {target:tx, reading:rd, note:nt};
 }
 async function doTranslate(text,toJa){
+  var hit=lookupLocal(text,toJa);
+  if(hit)return hit;
   try{ return await translateClaude(text,toJa); }
   catch(e){ return await translateFree(text,toJa); }
 }
