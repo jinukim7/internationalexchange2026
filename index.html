@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
+<title>경희중 ↔ 同志社中 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  /* Airbnb tokens */
+  --rausch:#ff385c; --rausch-a:#e00b41; --rausch-d:#ffd1da; --rausch-t:#fff0f3;
+  --ink:#222222; --body:#3f3f3f; --muted:#6a6a6a; --muted-s:#929292;
+  --hair:#dddddd; --hair-s:#ebebeb; --strong:#c1c1c1;
+  --canvas:#ffffff; --soft:#f7f7f7; --surf-strong:#f2f2f2;
+  --shadow: rgba(0,0,0,.02) 0 0 0 1px, rgba(0,0,0,.04) 0 2px 6px 0, rgba(0,0,0,.1) 0 4px 8px 0;
+
+  font-family:'Inter','Noto Sans KR','Noto Sans JP',-apple-system,system-ui,sans-serif;
+  background:var(--canvas); color:var(--ink);
+  font-size:16px; line-height:1.5;
+  -webkit-font-smoothing:antialiased; -webkit-text-size-adjust:100%;
+}
+body[data-lang="ja"]{font-family:'Inter','Noto Sans JP','Noto Sans KR',-apple-system,system-ui,sans-serif}
+#app{max-width:520px;margin:0 auto;min-height:100vh;padding-bottom:88px}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit;padding:0}
+button:focus-visible,textarea:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+a{color:inherit}
+
+/* ─── top nav ─── */
+.nav{height:72px;padding:0 16px;border-bottom:1px solid var(--hair-s);
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  position:sticky;top:0;background:var(--canvas);z-index:15}
+.brand{display:flex;align-items:center;gap:9px;min-width:0}
+.brand-mark{width:30px;height:30px;border-radius:9999px;background:var(--rausch);
+  color:#fff;display:grid;place-items:center;font-size:13px;font-weight:700;flex-shrink:0}
+.brand-txt{min-width:0}
+.brand-t{font-size:16px;font-weight:600;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand-s{font-size:12px;font-weight:400;line-height:1.33;color:var(--muted);white-space:nowrap}
+.lang{display:flex;border:1px solid var(--hair);border-radius:9999px;overflow:hidden;flex-shrink:0}
+.lang button{padding:7px 12px;font-size:13px;font-weight:500;color:var(--muted);line-height:1.23}
+.lang button[data-on="1"]{background:var(--ink);color:#fff;font-weight:600}
+
+/* ─── shared ─── */
+.wrap{padding:24px 16px 8px}
+.sec{padding:0 16px}
+.h-lg{font-size:22px;font-weight:600;line-height:1.18;letter-spacing:-.44px}
+.h-md{font-size:16px;font-weight:600;line-height:1.25}
+.tag-up{font-size:8px;font-weight:700;letter-spacing:.32px;text-transform:uppercase;color:var(--muted)}
+.micro{font-size:12px;font-weight:700;line-height:1.33}
+.b-sm{font-size:14px;font-weight:400;line-height:1.43;color:var(--body)}
+.cap-sm{font-size:13px;font-weight:400;line-height:1.4;color:var(--muted)}
+.note{padding:16px;margin:0 16px 24px;font-size:13px;line-height:1.6;color:var(--muted);
+  background:var(--soft);border-radius:14px}
+
+.card{background:var(--canvas);border:1px solid var(--hair-s);border-radius:14px;
+  margin:0 16px 16px;overflow:hidden}
+.btn{display:block;width:100%;height:48px;border-radius:8px;background:var(--rausch);
+  color:#fff;font-size:16px;font-weight:500;line-height:1.25;transition:background .15s}
+.btn:active:not(:disabled){background:var(--rausch-a)}
+.btn:disabled{background:var(--rausch-d);cursor:not-allowed}
+.strip{display:flex;gap:8px;overflow-x:auto;padding:0 16px 16px;scrollbar-width:none}
+.strip::-webkit-scrollbar{display:none}
+.strip button{flex-shrink:0;padding:9px 16px;border-radius:9999px;border:1px solid var(--hair);
+  font-size:14px;font-weight:500;line-height:1.29;color:var(--body);background:var(--canvas)}
+.strip button[data-on="1"]{background:var(--ink);color:#fff;border-color:var(--ink);font-weight:600}
+.dot{width:5px;height:5px;border-radius:9999px;background:var(--rausch);display:inline-block;margin-left:5px;vertical-align:2px}
+
+/* ─── translate ─── */
+.dirbar{display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid var(--hair-s)}
+.dirbar span{flex:1;text-align:center;font-size:16px;font-weight:600;line-height:1.25}
+.swap{width:40px;height:40px;border-radius:9999px;background:var(--surf-strong);
+  display:grid;place-items:center;font-size:15px;color:var(--ink);flex-shrink:0;
+  transition:transform .35s cubic-bezier(.4,0,.2,1)}
+.swap:active{transform:rotate(180deg)}
+#src{width:100%;min-height:110px;resize:none;border:none;background:transparent;
+  padding:20px 16px 12px;font-family:inherit;font-size:16px;line-height:1.5;color:var(--ink)}
+#src::placeholder{color:var(--muted-s)}
+.gowrap{padding:0 16px 16px}
+.out{border-top:1px solid var(--hair-s);padding:24px 16px;animation:rise .25s ease-out}
+@keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.out-main{font-size:22px;font-weight:600;line-height:1.35;letter-spacing:-.44px;word-break:break-word}
+.out-read{margin-top:12px;font-size:16px;font-weight:500;line-height:1.4;color:var(--rausch)}
+.out-lbl{font-size:8px;font-weight:700;letter-spacing:.32px;text-transform:uppercase;
+  color:var(--muted);margin-bottom:6px}
+.out-note{margin-top:16px;padding-top:16px;border-top:1px solid var(--hair-s);
+  font-size:13px;line-height:1.5;color:var(--muted)}
+.copy{margin-top:20px;font-size:14px;font-weight:500;color:var(--ink);
+  text-decoration:underline;text-underline-offset:3px}
+.err{padding:20px 16px;border-top:1px solid var(--hair-s);font-size:14px;line-height:1.5;color:#c13515}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.35);
+  border-top-color:#fff;border-radius:9999px;animation:sp .7s linear infinite;
+  vertical-align:-2px;margin-right:8px}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+/* ─── phrases ─── */
+.ph{padding:16px;border-bottom:1px solid var(--hair-s)}
+.ph:last-child{border-bottom:none}
+.ph-main{font-size:16px;font-weight:600;line-height:1.35}
+.ph-read{font-size:14px;font-weight:500;line-height:1.43;color:var(--rausch);margin-top:5px}
+.ph-sub{font-size:13px;font-weight:400;line-height:1.4;color:var(--muted);margin-top:6px}
+
+/* ─── missions ─── */
+.blk{margin:0 16px 32px}
+.blk-h{display:flex;align-items:baseline;gap:10px;margin-bottom:12px}
+.blk-time{font-size:14px;font-weight:700;line-height:1.29;color:var(--rausch)}
+.blk-title{font-size:22px;font-weight:600;line-height:1.18;letter-spacing:-.44px}
+.teams{border:1px solid var(--hair-s);border-radius:14px;overflow:hidden;margin-bottom:12px}
+.team{padding:12px 16px;display:grid;grid-template-columns:1fr auto 1fr;align-items:start;gap:12px;
+  border-bottom:1px solid var(--hair-s)}
+.team:last-child{border-bottom:none}
+.tn{min-width:0}
+.tn.kr{text-align:right}
+.nm{display:block;margin:3px 0}
+.nm b{display:block;font-size:14px;font-weight:600;line-height:1.29}
+.nm i{display:block;font-style:normal;font-size:11px;font-weight:400;line-height:1.3;
+  color:var(--muted-s);letter-spacing:.02em;margin-top:1px}
+.badge{padding:4px 10px;border-radius:9999px;background:var(--surf-strong);
+  font-size:11px;font-weight:600;line-height:1.18;flex-shrink:0;margin-top:4px}
+
+.mlist{border:1px solid var(--hair-s);border-radius:14px;overflow:hidden}
+.ms{display:flex;gap:14px;padding:16px;width:100%;text-align:left;
+  border-bottom:1px solid var(--hair-s);background:var(--canvas)}
+.ms:last-child{border-bottom:none}
+.chk{width:24px;height:24px;border-radius:9999px;border:1.5px solid var(--strong);
+  flex-shrink:0;margin-top:1px;display:grid;place-items:center;font-size:12px;
+  color:transparent;transition:all .18s}
+.ms[data-done="1"] .chk{background:var(--rausch);border-color:var(--rausch);color:#fff}
+.ms[data-done="1"] .ms-t{color:var(--muted-s);text-decoration:line-through}
+.ms-k{display:block;font-size:8px;font-weight:700;letter-spacing:.32px;text-transform:uppercase;
+  color:var(--muted);margin-bottom:6px}
+.ms-t{display:block;font-size:16px;font-weight:500;line-height:1.4}
+.ms-s{display:block;font-size:13px;line-height:1.5;color:var(--muted);margin-top:6px}
+
+.move{border:1px solid var(--hair);border-radius:14px;padding:16px;margin-bottom:12px;background:var(--soft)}
+.move-l{font-size:8px;font-weight:700;letter-spacing:.32px;text-transform:uppercase;
+  color:var(--muted);margin-bottom:6px}
+.move-p{font-size:16px;font-weight:600;line-height:1.35}
+.bus{display:inline-block;margin-top:10px;padding:7px 12px;border-radius:9999px;
+  background:var(--canvas);border:1px solid var(--hair);
+  font-size:13px;font-weight:500;line-height:1.3;color:var(--body)}
+.move-n{font-size:13px;line-height:1.5;color:var(--muted);margin-top:10px}
+.mlink{display:inline-block;margin-top:12px;font-size:14px;font-weight:500;
+  text-decoration:underline;text-underline-offset:3px}
+
+.meet{border:1px solid var(--rausch);border-radius:14px;padding:20px 16px;margin-top:12px;background:var(--rausch-t)}
+.meet-t{font-size:28px;font-weight:700;line-height:1.1;letter-spacing:-1px;color:var(--rausch)}
+.meet-l{font-size:8px;font-weight:700;letter-spacing:.32px;text-transform:uppercase;
+  color:var(--rausch);margin-bottom:8px}
+.meet-p{font-size:16px;font-weight:600;line-height:1.35;margin-top:8px}
+.meet-n{font-size:13px;line-height:1.5;color:var(--body);margin-top:8px}
+
+.prog{margin:0 16px 24px;padding:20px;border:1px solid var(--hair-s);border-radius:14px;
+  display:flex;align-items:center;justify-content:space-between;gap:16px}
+.prog-n{font-size:28px;font-weight:700;line-height:1.1;letter-spacing:-1px}
+.prog-n span{font-size:16px;font-weight:400;color:var(--muted-s);letter-spacing:0}
+.bar{height:4px;background:var(--surf-strong);border-radius:9999px;margin-top:10px;overflow:hidden;width:104px}
+.bar i{display:block;height:100%;background:var(--rausch);border-radius:9999px;transition:width .4s}
+
+/* ─── schedule ─── */
+.clock{padding:32px 16px 24px;text-align:center;border-bottom:1px solid var(--hair-s);margin-bottom:24px}
+.clock-t{font-size:64px;font-weight:700;line-height:1.1;letter-spacing:-1px;font-variant-numeric:tabular-nums}
+.clock-d{font-size:13px;font-weight:400;line-height:1.23;color:var(--muted);margin-top:4px}
+.clock-a{margin-top:20px;padding:16px;border-radius:14px;background:var(--soft);text-align:left}
+.clock-l{font-size:8px;font-weight:700;letter-spacing:.32px;text-transform:uppercase;
+  color:var(--muted);margin-bottom:7px}
+.clock-c{font-size:16px;font-weight:600;line-height:1.35;display:flex;align-items:center;gap:8px}
+.clock-x{font-size:13px;line-height:1.4;color:var(--muted);margin-top:8px}
+.pulse{width:8px;height:8px;border-radius:9999px;background:var(--rausch);flex-shrink:0;
+  animation:pl 2s ease-in-out infinite}
+@keyframes pl{0%,100%{opacity:1}50%{opacity:.2}}
+
+.tl{margin:0 16px}
+.row{display:grid;grid-template-columns:56px 1fr;gap:16px;padding:14px 0;
+  border-bottom:1px solid var(--hair-s);transition:opacity .25s}
+.row:last-child{border-bottom:none}
+.row[data-st="past"]{opacity:.38}
+.row[data-st="now"]{background:var(--rausch-t);margin:0 -12px;padding:14px 12px;
+  border-radius:14px;border-bottom-color:transparent}
+.row-t{font-size:14px;font-weight:700;line-height:1.43;color:var(--muted);font-variant-numeric:tabular-nums}
+.row[data-st="now"] .row-t{color:var(--rausch)}
+.row-c{font-size:16px;font-weight:500;line-height:1.4}
+.row[data-st="now"] .row-c{font-weight:600}
+.row-s{display:block;font-size:13px;line-height:1.45;color:var(--muted);margin-top:5px}
+
+.mblk{margin:0 0 6px 68px}
+.mblk-h{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;
+  padding:13px 15px;border:1px solid var(--hair);border-radius:12px;background:var(--canvas);
+  text-align:left;transition:background .15s}
+.mblk-h:active{background:var(--soft)}
+.mblk-h b{display:block;font-size:14px;font-weight:600;line-height:1.3}
+.mblk-h i{display:block;font-style:normal;font-size:12px;font-weight:500;
+  line-height:1.3;color:var(--muted);margin-top:3px}
+.chev{width:16px;height:16px;stroke:var(--muted);fill:none;stroke-width:2;
+  stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;transition:transform .22s}
+.mblk[data-open="1"] .mblk-h{border-color:var(--strong)}
+.mblk[data-open="1"] .chev{transform:rotate(180deg)}
+.mblk-b{margin-top:10px;animation:rise .2s ease-out}
+.mblk-b .teams{margin-bottom:10px}
+.row-m{display:inline-flex;align-items:center;gap:5px;margin-top:9px;padding:6px 11px;
+  border-radius:9999px;border:1px solid var(--hair);background:var(--canvas);
+  font-size:12px;font-weight:600;line-height:1.2;color:var(--ink);text-decoration:none}
+.row-m svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:1.9;
+  stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.row-m:active{background:var(--soft)}
+.row-p+.row-m,.row-m+.row-p{margin-left:6px}
+.row-p{display:inline-flex;align-items:center;gap:6px;margin-top:8px;padding:6px 12px;
+  border-radius:9999px;background:var(--rausch-t);border:1px solid var(--rausch-d);
+  font-size:13px;font-weight:600;line-height:1.3;color:var(--rausch)}
+.row-p svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8;
+  stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.row[data-st="now"] .row-p{background:var(--canvas)}
+.prep{margin:24px 16px;padding:20px;border:1px solid var(--hair-s);border-radius:14px}
+.prep p{margin:8px 0 0;font-size:14px;line-height:1.6;color:var(--body)}
+.sos{margin:0 16px 24px;padding:20px;border-radius:14px;background:var(--ink);color:#fff}
+.sos p{margin:0 0 10px;font-size:14px;line-height:1.5;opacity:.82}
+.sos p:last-child{margin:0}
+.sos-l{font-size:8px;font-weight:700;letter-spacing:.32px;text-transform:uppercase;
+  opacity:.5;margin-bottom:10px}
+.call{display:flex;align-items:center;justify-content:center;gap:8px;height:48px;
+  margin-top:16px;border-radius:8px;background:var(--rausch);color:#fff;
+  font-size:16px;font-weight:600;text-decoration:none;font-variant-numeric:tabular-nums}
+
+/* ─── bottom tabs ─── */
+.tabs{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:520px;
+  display:grid;grid-template-columns:repeat(3,1fr);background:var(--canvas);
+  border-top:1px solid var(--hair-s);padding-bottom:env(safe-area-inset-bottom);z-index:20}
+.tab{padding:10px 0 12px;display:grid;gap:4px;justify-items:center;color:var(--muted)}
+.tab svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.7;
+  stroke-linecap:round;stroke-linejoin:round}
+.tab span{font-size:11px;font-weight:500;line-height:1.2}
+.tab[data-on="1"]{color:var(--rausch)}
+.tab[data-on="1"] span{font-weight:600}
+
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body data-lang="ko">
+<div id="app">
+  <header class="nav">
+    <div class="brand">
+      <div class="brand-mark">交</div>
+      <div class="brand-txt">
+        <div class="brand-t" id="bt">경희중 × 同志社中</div>
+        <div class="brand-s">2026. 8. 20 — 8. 23</div>
+      </div>
+    </div>
+    <div class="lang" id="lang">
+      <button data-lang="ko">한국어</button><button data-lang="ja">日本語</button>
+    </div>
+  </header>
+  <main id="view"></main>
+  <nav class="tabs" id="tabs"></nav>
+</div>
+
+<script>
+/* ═══════════ 설정 ═══════════ */
+var CONFIG = {
+  teacherName:{ko:"김진우 선생님",ja:"キム・ジヌ先生"},
+  teacherTel:{ko:"010-2006-4862",ja:"+82-10-2006-4862"},
+  apiKey:""     // ← 비워두면 무료 번역 엔진 사용
+};
+
+/* ═══════════ UI 문자열 ═══════════ */
+var T={
+  brand:{ko:"경희중 × 同志社中",ja:"慶熙中 × 同志社中"},
+  tabs:{ko:["번역","회화","일정"],ja:["翻訳","会話","日程"]},
+  mapLbl:{ko:"지도",ja:"地図"},
+  missionLbl:{ko:"미션",ja:"ミッション"},
+  doneLbl:{ko:"완료",ja:"完了"},
+  placeholder:{ko:"하고 싶은 말을 적어보세요",ja:"話したいことを入力してください"},
+  go:{ko:"번역하기",ja:"翻訳する"},
+  going:{ko:"번역 중",ja:"翻訳中"},
+  readLbl:{ko:"이렇게 읽으세요",ja:"このように読みます"},
+  copy:{ko:"복사하기",ja:"コピーする"},
+  copied:{ko:"복사했습니다",ja:"コピーしました"},
+  err:{ko:"번역을 가져오지 못했습니다. 인터넷을 확인하고 다시 눌러주세요. 급할 때는 '회화' 탭의 문장을 그대로 보여주면 됩니다.",
+       ja:"翻訳できませんでした。通信を確認してもう一度押してください。急ぐときは「会話」タブの文をそのまま見せてください。"},
+  quickLabel:{ko:"자주 쓰는 말",ja:"よく使う言葉"},
+  transNote:{ko:"화면을 파트너에게 보여주면서 쓰면 훨씬 잘 통합니다. 발음이 적혀 있으니 직접 소리 내어 읽어보세요. 틀려도 괜찮습니다. 읽어보려는 것만으로도 상대는 고마워합니다.",
+             ja:"画面をパートナーに見せながら使うと、ずっとよく伝わります。読み方が書いてあるので、声に出して読んでみてください。間違っても大丈夫。読もうとするだけで相手は嬉しくなります。"},
+  offline:{ko:"인터넷이 안 돼도 쓸 수 있습니다",ja:"通信がなくても使えます"},
+  phraseNote:{ko:"위쪽 문장은 상대에게 보여주고, 붉은 글씨는 내가 소리 내어 읽으면 됩니다.",
+              ja:"上の文は相手に見せて、赤い文字を自分で声に出して読んでください。"},
+  missionDone:{ko:"내가 해낸 미션",ja:"やってみたミッション"},
+  missionNote:{ko:"팀은 블록마다 바뀝니다. 내 파트너 말고 다른 친구들과도 친해지라고 그렇게 짰습니다.<br><br>체크는 나만 보는 기록이에요. 순위를 매기지 않으니 편하게 하세요. 못 한 미션이 있어도 괜찮습니다. 사진 찍느라 정작 이야기를 못 나누면 그게 더 아쉬우니까요.<br><br>다만 집합 시각만은 꼭 지켜주세요. 사진은 팀에서 한 명이 대표로 단톡방에 올려주면 됩니다.",
+               ja:"チームはブロックごとに変わります。パートナー以外の友だちとも仲良くなれるようにしています。<br><br>チェックは自分だけの記録です。順位はつけないので気楽にどうぞ。できなかったミッションがあっても大丈夫。写真に夢中で話ができなかったら、そのほうがもったいないですから。<br><br>ただし集合時刻だけは守ってください。写真はチームの代表が一人まとめて送ってください。"},
+  meetLbl:{ko:"여기서 다시 모여요",ja:"ここで再集合"},
+  mapLink:{ko:"지도에서 보기",ja:"地図で見る"},
+  nowLbl:{ko:"지금은",ja:"いまは"},
+  nextLbl:{ko:"다음",ja:"つぎ"},
+  soonLbl:{ko:"곧 시작",ja:"まもなく開始"},
+  beforeMsg:{ko:"교류가 시작되기 전입니다",ja:"交流が始まる前です"},
+  afterMsg:{ko:"모든 일정이 끝났습니다. 고생 많았어요",ja:"すべての日程が終わりました。おつかれさまでした"},
+  sosTitle:{ko:"이럴 땐 바로 연락",ja:"こんなときはすぐ連絡"},
+  sos1:{ko:"길을 잃었거나, 팀에서 떨어졌거나, 파트너가 아파 보일 때 — 혼자 해결하려 하지 말고 먼저 연락하세요.",
+        ja:"道に迷ったとき、チームとはぐれたとき、パートナーの具合が悪そうなとき — 一人で解決しようとせず、まず連絡してください。"},
+  sos2:{ko:"못 오게 되거나 늦을 것 같을 때도 미리 알려주면 대부분 조정할 수 있습니다.",
+        ja:"来られなくなったり遅れそうなときも、早めに知らせてくれればたいてい調整できます。"},
+  sosWho:{ko:"국제교류 담당",ja:"国際交流担当"},
+  pairsTitle:{ko:"홈스테이 짝",ja:"ホームステイのペア"},
+  prepTitle:{ko:"8월 22일 준비물",ja:"8月22日の持ち物"},
+  prep:{ko:"교통카드 · 점심값 · 저녁값 · 간식비 · 우산 · 보조배터리 · 모자 등 더위 대비 물품",
+        ja:"交通カード · 昼食代 · 夕食代 · おやつ代 · 傘 · モバイルバッテリー · 帽子など暑さ対策グッズ"},
+  kinds:{ko:["사진 미션","대화 미션","함께 하기","보너스"],
+         ja:["写真ミッション","会話ミッション","いっしょに","ボーナス"]}
+};
+var L="ko";
+function t(k){return T[k][L];}
+function x(o){return o?o[L]:"";}
+
+/* ═══════════ 데이터 ═══════════ */
+var KRN={"최수아":"CHOI SUA","이주원":"LEE JUWON","김선호":"KIM SUNHO",
+         "박서진":"PARK SEOJIN","장성웅":"JANG SEONGUNG","이정하":"LEE JEONGHA"};
+var JPN={"HISA HARUTO":"比佐 晴人","TAKAHASHI KAO":"高橋 果桜","KAWASHIMA AKO":"川島 碧子",
+         "TANAKA KOUTA":"田中 孝太","YAMASHITA YURIKO":"山下 有理子","MOCHIZUKI YUUTA":"望月 結太"};
+var PAIRS=[
+ {kr:"최수아",jp:"HISA HARUTO",cls:"1-1"},
+ {kr:"이주원",jp:"TAKAHASHI KAO",cls:"1-6"},
+ {kr:"김선호",jp:"KAWASHIMA AKO",cls:"2-2"},
+ {kr:"박서진",jp:"TANAKA KOUTA",cls:"2-2"},
+ {kr:"장성웅",jp:"YAMASHITA YURIKO",cls:"2-2"},
+ {kr:"이정하",jp:"MOCHIZUKI YUUTA",cls:"3-6"}
+];
+function nmKr(n){return '<span class="nm"><b>'+n+'</b><i>'+(KRN[n]||"")+'</i></span>';}
+function nmJp(n){return '<span class="nm"><b>'+(JPN[n]||n)+'</b><i>'+n+'</i></span>';}
+
+/* k: 0 사진 · 1 대화 · 2 함께하기 · 3 보너스 */
+var BLOCKS=[
+{time:"10:00",title:{ko:"덕수궁 · 정동",ja:"徳寿宮 · 貞洞"},
+ teams:[
+  {tag:"A",kr:["최수아","이정하"],jp:["HISA HARUTO","TAKAHASHI KAO"]},
+  {tag:"B",kr:["김선호","이주원"],jp:["KAWASHIMA AKO","TANAKA KOUTA"]},
+  {tag:"C",kr:["장성웅","박서진"],jp:["YAMASHITA YURIKO","MOCHIZUKI YUUTA"]}],
+ missions:[
+  {k:0,t:{ko:"대한문 앞에서 네 명 사진",ja:"大漢門の前で4人の写真"},
+     s:{ko:"11시에 수문장 교대식이 있어요. 시간이 맞으면 꼭 보세요",ja:"11時に守門将の交代式があります。時間が合えばぜひ見てください"}},
+  {k:0,t:{ko:"석조전 계단 앞에서 점프샷",ja:"石造殿の階段でジャンプ写真"},
+     s:{ko:"네 명이 동시에 뛰어야 성공. 실패하는 과정이 제일 재밌습니다",ja:"4人同時に跳べたら成功。失敗するほど楽しくなります"}},
+  {k:0,t:{ko:"덕수궁 돌담길을 걷는 뒷모습",ja:"徳寿宮の石垣道を歩く後ろ姿"},
+     s:{ko:"한 명이 뒤에서 찍어주세요. 매년 제일 예쁘게 나오는 사진",ja:"誰か一人が後ろから撮ってください。毎年いちばん綺麗に撮れる一枚です"}},
+  {k:1,t:{ko:"파트너 인터뷰 — 다섯 가지 질문",ja:"パートナーインタビュー — 5つの質問"},
+     s:{ko:"① 좋아하는 음식 ② 좋아하는·싫어하는 과목 ③ 요즘 듣는 노래 ④ 학교 끝나고 뭐 해? ⑤ 여기 와서 제일 놀란 것",
+        ja:"① 好きな食べ物 ② 好きな科目・苦手な科目 ③ 最近聴いている曲 ④ 放課後は何をしてる？ ⑤ ここに来ていちばん驚いたこと"}},
+  {k:3,t:{ko:"정동의 오래된 건물 찾아 사진 찍기",ja:"貞洞の古い建物を見つけて写真"},
+     s:{ko:"정동제일교회 · 중명전 · 배재학당역사박물관. 시간이 남으면 해보세요",
+        ja:"貞洞第一教会 · 重明殿 · 培材学堂歴史博物館。時間があればどうぞ"}}],
+ meet:{time:"13:30",
+   place:{ko:"정동제일교회 앞 광장",ja:"貞洞第一教会前の広場"},
+   note:{ko:"12시가 되면 미션을 멈추고 점심을 먹습니다. 식사 후 13시 30분까지 광장으로 모여주세요. 14시 공연이라 늦으면 입장할 수 없습니다.",
+         ja:"12時になったらミッションをやめて昼食にします。食事のあと13時30分までに広場に集まってください。14時開演なので、遅れると入場できません。"},
+   url:"https://map.naver.com/p/search/정동제일교회"}},
+
+{time:"14:00",title:{ko:"페인터즈 · 명동",ja:"ペインターズ · 明洞"},
+ teams:[
+  {tag:"A",kr:["최수아","이정하"],jp:["KAWASHIMA AKO","TANAKA KOUTA"]},
+  {tag:"B",kr:["김선호","이주원"],jp:["YAMASHITA YURIKO","MOCHIZUKI YUUTA"]},
+  {tag:"C",kr:["장성웅","박서진"],jp:["HISA HARUTO","TAKAHASHI KAO"]}],
+ arrive:{lbl:{ko:"공연 후 이동",ja:"公演のあとの移動"},
+   place:{ko:"하이커그라운드 · 명동",ja:"ハイカーグラウンド · 明洞"},
+   bus:{ko:"버스 702A · 702B · 705 → 을지로입구역 하차",
+        ja:"バス 702A · 702B · 705 → 乙支路入口駅で下車"},
+   url:"https://map.naver.com/p/search/하이커그라운드"},
+ missions:[
+  {k:0,t:{ko:"공연장 앞에서 네 명 사진",ja:"劇場の前で4人の写真"},
+     s:{ko:"정동길 3 경향아트힐. 입장 전에 미리 찍어두세요",ja:"貞洞キル3 キョンヒャンアートヒル。入場前に撮っておきましょう"}},
+  {k:0,t:{ko:"하이커그라운드에서 네 명이 나오는 영상 한 편",ja:"ハイカーグラウンドで4人が映る動画を1本"},
+     s:{ko:"댄스든 포토부스든 자유. 10초면 충분합니다",ja:"ダンスでもフォトブースでも自由。10秒で十分です"}},
+  {k:2,t:{ko:"서로에게 5,000원 이하 간식 사주기",ja:"おたがいに5,000ウォン以下のおやつを買ってあげる"},
+     s:{ko:"내가 먹고 싶은 게 아니라, 파트너가 좋아할 것 같은 걸로",ja:"自分が食べたいものではなく、相手が好きそうなものを選んでください"}},
+  {k:0,t:{ko:"네 명이 같은 테이블에서 저녁 먹는 사진",ja:"4人が同じテーブルで夕食を食べる写真"},
+     s:{ko:"음식이 나온 뒤에 찍으세요. 서로 뭘 시켰는지 물어보면 이야기가 이어집니다",
+        ja:"料理が出てきてから撮りましょう。何を頼んだか聞き合うと話が続きます"}}],
+ meet:{time:"18:30",
+   place:{ko:"올리브영 명동2가점 앞",ja:"オリーブヤング 明洞2街店の前"},
+   note:{ko:"하이커그라운드에서 자유롭게 시간을 보낸 뒤, 17시가 되면 명동에서 저녁을 먹습니다. 18시 30분까지 올리브영 앞으로 모이면, 여기서 버스를 타고 다 함께 승차장으로 이동합니다.",
+         ja:"ハイカーグラウンドで自由に過ごしたあと、17時になったら明洞で夕食をとります。18時30分までにオリーブヤング前に集まったら、そこからバスで一緒に乗り場へ移動します。"},
+   url:"https://map.naver.com/p/search/올리브영 명동2가점"}},
+
+{time:"19:30",title:{ko:"시티투어버스",ja:"シティツアーバス"},
+ teams:[
+  {tag:"A",kr:["최수아","이정하"],jp:["YAMASHITA YURIKO","MOCHIZUKI YUUTA"]},
+  {tag:"B",kr:["김선호","이주원"],jp:["HISA HARUTO","TAKAHASHI KAO"]},
+  {tag:"C",kr:["장성웅","박서진"],jp:["KAWASHIMA AKO","TANAKA KOUTA"]}],
+ arrive:{lbl:{ko:"19:00 승차장 집결",ja:"19:00 乗り場に集合"},
+   place:{ko:"광화문 동화면세점 앞 승차장",ja:"光化門 トンファ免税店前の乗り場"},
+   bus:{ko:"명동에서 버스 704 · 406 · 401 → 세종문화회관 하차",
+        ja:"明洞からバス 704 · 406 · 401 → 世宗文化会館で下車"},
+   note:{ko:"18시 30분 올리브영 앞에서 모여 함께 이동합니다. 19시부터 줄을 서고 19시 30분에 탑승합니다. 자리가 정해져 있지 않으니 늦으면 팀이 흩어집니다.",
+         ja:"19時から並び、19時30分に乗車します。席が決まっていないので、遅れるとチームがばらばらになります。"},
+   url:"https://map.naver.com/p/search/서울시티투어버스+광화문"},
+ missions:[
+  {k:2,t:{ko:"서로의 이름을 상대방 글자로 써주기",ja:"おたがいの名前を相手の文字で書いてあげる"},
+     s:{ko:"한국 학생은 가타카나로, 일본 학생은 한글로. 제일 오래 남는 미션입니다",
+        ja:"韓国の生徒はカタカナで、日本の生徒はハングルで。いちばん長く残るミッションです"}},
+  {k:0,t:{ko:"버스 2층에서 야경을 배경으로 네 명 사진",ja:"バス2階で夜景をバックに4人の写真"},
+     s:{ko:"바람이 셉니다. 모자와 안경 조심",ja:"風が強いです。帽子とメガネに注意"}},
+  {k:2,t:{ko:"서로 연락처 교환하기",ja:"連絡先を交換する"},
+     s:{ko:"카카오톡 · 라인 · 인스타그램 중 하나. 오늘 안 하면 다시 만나기 어려워집니다",
+        ja:"カカオトーク · LINE · インスタグラムのどれか。今日やらないと、また会うのが難しくなります"}},
+  {k:1,t:{ko:"파트너에게 오늘 고마웠던 것 한 가지 말하기",ja:"パートナーに、今日ありがとうと思ったことを一つ伝える"},
+     s:{ko:"번역기를 써도 좋지만, 직접 말해보면 더 좋습니다",ja:"翻訳を使ってもいいですが、自分の口で言えたらもっといいです"}},
+  {k:3,t:{ko:"헤어짐의 인사 한마디 준비하기",ja:"お別れのひとことを用意する"},
+     s:{ko:"21:30 헤어짐의 시간에 한 사람씩 전합니다",ja:"21:30のお別れの時間に、一人ずつ伝えます"}}]}
+];
+
+var CATS=[
+ {ko:"첫인사",ja:"はじめの挨拶"},{ko:"우리 집",ja:"家で"},{ko:"밥",ja:"食事"},
+ {ko:"학교",ja:"学校で"},{ko:"이동",ja:"移動"},{ko:"구경·쇼핑",ja:"買い物・観光"},
+ {ko:"마음",ja:"気持ち"},{ko:"급할 때",ja:"困ったとき"}
+];
+var PHRASES=[
+[
+ {ko:"만나서 반가워",ja:"はじめまして、会えてうれしいです",rk:"하지메마시테, 아에테 우레시-데스",rj:"マンナソ パンガウォ"},
+ {ko:"내 이름은 ○○야",ja:"わたしの名前は○○です",rk:"와타시노 나마에와 ○○데스",rj:"ネ イルムン ○○ヤ"},
+ {ko:"잘 부탁해",ja:"よろしくおねがいします",rk:"요로시쿠 오네가이시마스",rj:"チャル プタケ"},
+ {ko:"우리 집에 온 걸 환영해",ja:"わが家へようこそ",rk:"와가야에 요-코소",rj:"ウリ チベ オン ゴル ファニョンヘ"},
+ {ko:"오는 데 힘들지 않았어?",ja:"来るの大変じゃなかった？",rk:"쿠루노 타이헨쟈 나캇타?",rj:"オヌン デ ヒムドゥルジ アナッソ?"},
+ {ko:"몇 학년이야?",ja:"何年生？",rk:"난넨세-?",rj:"ミョッ ハンニョニヤ?"},
+ {ko:"나는 ○학년이야",ja:"わたしは○年生です",rk:"와타시와 ○넨세-데스",rj:"ナヌン ○ハンニョニヤ"},
+ {ko:"천천히 말해줘",ja:"ゆっくり話してね",rk:"윳쿠리 하나시테네",rj:"チョンチョニ マレジョ"},
+ {ko:"다시 한번 말해줄래?",ja:"もう一度言ってくれる？",rk:"모- 이치도 잇테쿠레루?",rj:"タシ ハンボン マレジュルレ?"},
+ {ko:"번역기 쓸게",ja:"翻訳アプリを使うね",rk:"혼야쿠 아푸리오 츠카우네",rj:"ポニョッキ ススルケ"}
+],[
+ {ko:"여기가 네 방이야",ja:"ここがあなたの部屋だよ",rk:"코코가 아나타노 헤야다요",rj:"ヨギガ ネ パンイヤ"},
+ {ko:"화장실은 저쪽이야",ja:"トイレはあちらです",rk:"토이레와 아치라데스",rj:"ファジャンシルン チョッチョギヤ"},
+ {ko:"수건 여기 있어",ja:"タオルはここだよ",rk:"타오루와 코코다요",rj:"スゴン ヨギ イッソ"},
+ {ko:"샤워할래?",ja:"シャワー浴びる？",rk:"샤와- 아비루?",rj:"シャウォハルレ?"},
+ {ko:"와이파이 비밀번호는 이거야",ja:"Wi-Fiのパスワードはこれだよ",rk:"와이화이노 파스와-도와 코레다요",rj:"ワイパイ ピミルボノヌン イゴヤ"},
+ {ko:"충전기 필요해?",ja:"充電器いる？",rk:"쥬-덴키 이루?",rj:"チュンジョンギ ピリョヘ?"},
+ {ko:"편하게 있어",ja:"ゆっくりしてね",rk:"윳쿠리시테네",rj:"ピョナゲ イッソ"},
+ {ko:"우리 가족이야",ja:"わたしの家族だよ",rk:"와타시노 카조쿠다요",rj:"ウリ カジョギヤ"},
+ {ko:"몇 시에 일어날까?",ja:"何時に起きようか？",rk:"난지니 오키요-카?",rj:"ミョッ シエ イロナルカ?"},
+ {ko:"잘 자",ja:"おやすみなさい",rk:"오야스미나사이",rj:"チャル ジャ"},
+ {ko:"잘 잤어?",ja:"よく眠れた？",rk:"요쿠 네무레타?",rj:"チャル チャッソ?"},
+ {ko:"필요한 거 있으면 말해",ja:"何かあったら言ってね",rk:"나니카 앗타라 잇테네",rj:"ピリョハン ゴ イッスミョン マレ"}
+],[
+ {ko:"배고파?",ja:"おなかすいた？",rk:"오나카 스이타?",rj:"ペゴパ?"},
+ {ko:"매운 거 괜찮아?",ja:"辛いもの大丈夫？",rk:"카라이 모노 다이죠-부?",rj:"メウン ゴ ケンチャナ?"},
+ {ko:"못 먹는 거 있어?",ja:"食べられないものある？",rk:"타베라레나이 모노 아루?",rj:"モン モンヌン ゴ イッソ?"},
+ {ko:"이거 먹어봐",ja:"これ食べてみて",rk:"코레 타베테미테",rj:"イゴ モゴバ"},
+ {ko:"맛있어?",ja:"おいしい？",rk:"오이시-?",rj:"マシッソ?"},
+ {ko:"이건 무슨 맛이야?",ja:"これはどんな味？",rk:"코레와 돈나 아지?",rj:"イゴン ムスン マシヤ?"},
+ {ko:"더 먹을래?",ja:"もっと食べる？",rk:"못토 타베루?",rj:"ト モグルレ?"},
+ {ko:"물 줄까?",ja:"お水いる？",rk:"오미즈 이루?",rj:"ムル チュルカ?"},
+ {ko:"천천히 먹어",ja:"ゆっくり食べてね",rk:"윳쿠리 타베테네",rj:"チョンチョニ モゴ"},
+ {ko:"잘 먹겠습니다",ja:"いただきます",rk:"이타다키마스",rj:"チャル モッケッスムニダ"},
+ {ko:"잘 먹었습니다",ja:"ごちそうさまでした",rk:"고치소-사마데시타",rj:"チャル モゴッスムニダ"},
+ {ko:"배불러",ja:"おなかいっぱい",rk:"오나카 잇파이",rj:"ペブルロ"}
+],[
+ {ko:"여기가 우리 교실이야",ja:"ここがわたしたちの教室だよ",rk:"코코가 와타시타치노 쿄-시츠다요",rj:"ヨギガ ウリ キョシリヤ"},
+ {ko:"여기 앉아",ja:"ここに座って",rk:"코코니 스왓테",rj:"ヨギ アンジャ"},
+ {ko:"다음은 ○○ 수업이야",ja:"次は○○の授業だよ",rk:"츠기와 ○○노 쥬교-다요",rj:"タウムン ○○ スオビヤ"},
+ {ko:"지금은 쉬는 시간이야",ja:"いまは休み時間だよ",rk:"이마와 야스미지칸다요",rj:"チグムン シュィヌン シガニヤ"},
+ {ko:"교과서 같이 보자",ja:"教科書、一緒に見よう",rk:"쿄-카쇼, 잇쇼니 미요-",rj:"キョグァソ カチ ポジャ"},
+ {ko:"내가 설명해줄게",ja:"わたしが説明するね",rk:"와타시가 세츠메-스루네",rj:"ネガ ソルミョンヘジュルケ"},
+ {ko:"이해했어?",ja:"わかった？",rk:"와캇타?",rj:"イヘヘッソ?"},
+ {ko:"이제 급식 먹으러 가자",ja:"これから給食を食べに行こう",rk:"코레카라 큐-쇼쿠오 타베니 이코-",rj:"イジェ クプシク モグロ カジャ"},
+ {ko:"화장실은 복도 끝에 있어",ja:"トイレは廊下の突き当たりだよ",rk:"토이레와 로-카노 츠키아타리다요",rj:"ファジャンシルン ポクト クテ イッソ"},
+ {ko:"우리 학교 어때?",ja:"うちの学校どう？",rk:"우치노 갓코- 도-?",rj:"ウリ ハッキョ オッテ?"},
+ {ko:"일본 학교랑 뭐가 달라?",ja:"日本の学校と何がちがう？",rk:"니혼노 갓코-토 나니가 치가우?",rj:"イルボン ハッキョラン ムォガ タルラ?"}
+],[
+ {ko:"이쪽이야",ja:"こっちだよ",rk:"콧치다요",rj:"イッチョギヤ"},
+ {ko:"조금만 기다려",ja:"ちょっと待って",rk:"촛토 맛테",rj:"チョグムマン キダリョ"},
+ {ko:"다음은 여기 갈 거야",ja:"次はここに行くよ",rk:"츠기와 코코니 이쿠요",rj:"タウムン ヨギ カル コヤ"},
+ {ko:"여기서 버스 타",ja:"ここでバスに乗るよ",rk:"코코데 바스니 노루요",rj:"ヨギソ ポス タ"},
+ {ko:"교통카드 찍어",ja:"交通カードをタッチして",rk:"코-츠-카-도오 탓치시테",rj:"キョトンカドゥ チゴ"},
+ {ko:"두 정거장만 가면 돼",ja:"二つ目で降りるよ",rk:"후타츠메데 오리루요",rj:"トゥ チョンゴジャンマン カミョン ドェ"},
+ {ko:"다 왔어",ja:"着いたよ",rk:"츠이타요",rj:"タ ワッソ"},
+ {ko:"힘들어? 좀 쉴까?",ja:"つかれた？休む？",rk:"츠카레타? 야스무?",rj:"ヒムドゥロ? チョム シュィルカ?"},
+ {ko:"화장실 갈래?",ja:"トイレ行く？",rk:"토이레 이쿠?",rj:"ファジャンシル カルレ?"},
+ {ko:"덥지 않아?",ja:"暑くない？",rk:"아츠쿠나이?",rj:"トプチ アナ?"},
+ {ko:"물 마셔",ja:"お水飲んで",rk:"오미즈 논데",rj:"ムル マショ"},
+ {ko:"내 옆에 붙어 있어",ja:"わたしのそばにいてね",rk:"와타시노 소바니 이테네",rj:"ネ ヨペ プトオ イッソ"}
+],[
+ {ko:"이거 어때?",ja:"これどう？",rk:"코레 도-?",rj:"イゴ オッテ?"},
+ {ko:"같이 사진 찍자",ja:"一緒に写真撮ろう",rk:"잇쇼니 샤신 토로-",rj:"カチ サジン チクチャ"},
+ {ko:"여기서 찍어줄게",ja:"ここで撮ってあげる",rk:"코코데 톳테아게루",rj:"ヨギソ チゴジュルケ"},
+ {ko:"한 장 더 찍자",ja:"もう一枚撮ろう",rk:"모- 이치마이 토로-",rj:"ハン ジャン ト チクチャ"},
+ {ko:"이거 사고 싶어?",ja:"これ買いたい？",rk:"코레 카이타이?",rj:"イゴ サゴ シポ?"},
+ {ko:"얼마예요?",ja:"いくらですか？",rk:"이쿠라데스카?",rj:"オルマエヨ?"},
+ {ko:"내가 사줄게",ja:"わたしがおごるよ",rk:"와타시가 오고루요",rj:"ネガ サジュルケ"},
+ {ko:"이거 맛있어, 먹어볼래?",ja:"これおいしいよ、食べてみる？",rk:"코레 오이시-요, 타베테미루?",rj:"イゴ マシッソ, モゴボルレ?"},
+ {ko:"조금만 더 구경하자",ja:"もう少し見て回ろう",rk:"모- 스코시 미테 마와로-",rj:"チョグムマン ト クギョンハジャ"},
+ {ko:"기념품으로 좋겠다",ja:"おみやげに良さそう",rk:"오미야게니 요사소-",rj:"キニョムプムロ チョケッタ"}
+],[
+ {ko:"고마워",ja:"ありがとう",rk:"아리가토-",rj:"コマウォ"},
+ {ko:"미안해",ja:"ごめんね",rk:"고멘네",rj:"ミアネ"},
+ {ko:"괜찮아, 신경 쓰지 마",ja:"大丈夫、気にしないで",rk:"다이죠-부, 키니시나이데",rj:"ケンチャナ, シンギョン スジ マ"},
+ {ko:"오늘 정말 재밌었어",ja:"今日は本当に楽しかった",rk:"쿄-와 혼토-니 타노시캇타",rj:"オヌル チョンマル チェミッソッソ"},
+ {ko:"너랑 있으면 즐거워",ja:"君といると楽しい",rk:"키미토 이루토 타노시-",rj:"ノラン イッスミョン チュルゴウォ"},
+ {ko:"와줘서 고마워",ja:"来てくれてありがとう",rk:"키테쿠레테 아리가토-",rj:"ワジョソ コマウォ"},
+ {ko:"우리 계속 연락하자",ja:"これからも連絡取り合おう",rk:"코레카라모 렌라쿠 토리아오-",rj:"ウリ ケソク ヨルラカジャ"},
+ {ko:"또 만나자",ja:"また会おうね",rk:"마타 아오-네",rj:"ト マンナジャ"},
+ {ko:"겨울에 일본에서 보자",ja:"冬に日本で会おうね",rk:"후유니 니혼데 아오-네",rj:"キョウレ イルボネソ ポジャ"},
+ {ko:"잘 가, 조심히 가",ja:"気をつけてね",rk:"키오츠케테네",rj:"チャル ガ, チョシミ ガ"}
+],[
+ {ko:"괜찮아?",ja:"だいじょうぶ？",rk:"다이죠-부?",rj:"ケンチャナ?"},
+ {ko:"어디 아파?",ja:"どこか痛い？",rk:"도코카 이타이?",rj:"オディ アパ?"},
+ {ko:"배가 아파",ja:"おなかが痛い",rk:"오나카가 이타이",rj:"ペガ アパ"},
+ {ko:"좀 쉬고 싶어",ja:"少し休みたい",rk:"스코시 야스미타이",rj:"チョム シュィゴ シポ"},
+ {ko:"선생님한테 연락할게",ja:"先生に連絡するね",rk:"센세-니 렌라쿠스루네",rj:"ソンセンニマンテ ヨルラカルケ"},
+ {ko:"길을 잃었어",ja:"道に迷った",rk:"미치니 마욧타",rj:"キルル イロッソ"},
+ {ko:"여기가 어디야?",ja:"ここはどこ？",rk:"코코와 도코?",rj:"ヨギガ オディヤ?"},
+ {ko:"여기서 기다려줘",ja:"ここで待っててね",rk:"코코데 맛테테네",rj:"ヨギソ キダリョジョ"},
+ {ko:"휴대폰 배터리가 없어",ja:"スマホの充電がない",rk:"스마호노 쥬-덴가 나이",rj:"ヒュデポン ペトリガ オプソ"},
+ {ko:"도와주세요",ja:"助けてください",rk:"타스케테 쿠다사이",rj:"トワジュセヨ"}
+]];
+
+var QUICK={
+ ko:["배고파?","이거 먹어봐","이쪽이야","조금만 기다려","여기 앉아","화장실 갈래?",
+     "물 마셔","괜찮아?","힘들면 말해","사진 찍자","다음은 여기 갈 거야","이거 어때?",
+     "내가 사줄게","천천히 말해줘","고마워","오늘 정말 재밌었어","또 만나자"],
+ ja:["おなかすいた？","これ食べてみて","こっちだよ","ちょっと待って","ここに座って","トイレ行く？",
+     "お水飲んで","だいじょうぶ？","つかれたら言ってね","写真撮ろう","次はここに行くよ","これどう？",
+     "わたしがおごるよ","ゆっくり話してね","ありがとう","今日は本当に楽しかった","また会おうね"]
+};
+
+var DAYS=[
+ {label:{ko:"8/20 목",ja:"8/20 木"},rows:[
+  {t:"15:30",c:{ko:"도시샤중학교 학생단 본교 도착",ja:"同志社中学校の生徒、慶熙中学校に到着"},m:"경희중학교"},
+  {t:"16:30",c:{ko:"첫 만남 · 자기소개 · 보드게임으로 친해지기",ja:"はじめての顔合わせ · 自己紹介 · ボードゲームで仲良くなる"},s:{ko:"5층 메이커스페이스",ja:"5階メイカースペース"}},
+  {t:"17:30",c:{ko:"기념 촬영 및 홈스테이 출발",ja:"記念撮影 · ホームステイへ出発"}}]},
+ {label:{ko:"8/21 금",ja:"8/21 金"},rows:[
+  {t:"08:30",c:{ko:"파트너와 함께 등교",ja:"パートナーと一緒に登校"},m:"경희중학교",
+    s:{ko:"파트너는 5층 메이커스페이스로 안내<br>경희중 학생은 책상과 의자를 준비하여 본인 옆자리에 배치",
+       ja:"パートナーを5階メイカースペースへ案内<br>慶熙中の生徒は机と椅子を用意して自分の隣に配置"}},
+  {t:"09:00",c:{ko:"교장선생님과 인사 · 학교 견학",ja:"校長先生へのご挨拶 · 学校見学"},s:{ko:"메이커스페이스 · 안내: 이정하, 김선호",ja:"メイカースペース · 案内: イ・ジョンハ、キム・ソンホ"}},
+  {t:"10:40",c:{ko:"수업 참관 1 (3교시)",ja:"授業参加 1（3時間目）"}},
+  {t:"11:35",c:{ko:"수업 참관 2 (4교시)",ja:"授業参加 2（4時間目）"},
+    s:{ko:"수업을 마친 후 5층 메이커스페이스에 모인 뒤 급식실로 이동",
+       ja:"授業のあと5階メイカースペースに集まってから給食室へ移動"}},
+  {t:"12:30",c:{ko:"급식실에서 함께 점심",ja:"給食室で一緒に昼食"}},
+  {t:"13:25",c:{ko:"수업 참관 3 (5교시)",ja:"授業参加 3（5時間目）"}},
+  {t:"14:20",c:{ko:"프로젝트 수업",ja:"プロジェクト授業"}},
+  {t:"15:15",c:{ko:"기악반 연주 감상",ja:"器楽部の演奏鑑賞"}},
+  {t:"16:00",c:{ko:"홈스테이 출발",ja:"ホームステイへ出発"}}]},
+ {label:{ko:"8/22 토",ja:"8/22 土"},prep:true,mission:true,rows:[
+  {t:"09:30",c:{ko:"뉴서울호텔 집결 · 짐 맡기기",ja:"ニューソウルホテル集合 · 荷物を預ける"},m:"뉴서울호텔",
+    s:{ko:"9시 30분에 도착할 수 있도록 시간을 계산하여 집에서 출발해 주세요",
+       ja:"9時30分に到着できるよう、時間を計算して家を出てください"}},
+  {t:"10:00",c:{ko:"덕수궁 · 정동 미션투어",ja:"徳寿宮 · 貞洞ミッションツアー"},m:"덕수궁",blk:0,
+    p:{ko:"단체사진 촬영",ja:"集合写真の撮影"}},
+  {t:"12:00",c:{ko:"점심 (정동 일대)",ja:"昼食（貞洞エリア）"},m:"정동길"},
+  {t:"13:30",c:{ko:"정동제일교회 앞 광장 집합",ja:"貞洞第一教会前の広場に集合"},m:"정동제일교회",s:{ko:"12시에 미션을 멈추고 점심을 먹습니다. 14시 공연이라 늦으면 입장할 수 없어요",ja:"12時にミッションをやめて昼食にします。14時の公演なので、遅れると入場できません"}},
+  {t:"14:00",c:{ko:"페인터즈 공연 관람",ja:"「ペインターズ」公演鑑賞"},m:"정동길 3 경향아트힐",blk:1,
+    s:{ko:"정동길 3 경향아트힐 1층 · 13:40까지 입장<br>공연 후 이동 — 버스 702A · 702B · 705 → 을지로입구역 하차",
+       ja:"貞洞キル3 キョンヒャンアートヒル1階 · 13:40までに入場<br>公演のあとの移動 — バス 702A · 702B · 705 → 乙支路入口駅で下車"},
+    p:{ko:"입장 전 단체사진 촬영",ja:"入場前に集合写真の撮影"}},
+  {t:"16:00",c:{ko:"하이커그라운드 · 명동",ja:"ハイカーグラウンド · 明洞"},m:"하이커그라운드"},
+  {t:"17:00",c:{ko:"명동에서 저녁 식사",ja:"明洞で夕食"},m:"명동역"},
+  {t:"18:30",c:{ko:"올리브영 명동2가점 앞 집합",ja:"オリーブヤング明洞2街店前に集合"},m:"올리브영 명동2가점",
+    s:{ko:"명동에서 버스 704 · 406 · 401 탑승 → 세종문화회관 하차<br>여기서 다 함께 이동합니다",
+       ja:"明洞からバス 704 · 406 · 401 に乗車 → 世宗文化会館で下車<br>ここから全員で移動します"}},
+  {t:"19:00",c:{ko:"승차장 집결 · 줄서기",ja:"乗り場に集合 · 列に並ぶ"},m:"서울시티투어버스 광화문",
+    s:{ko:"광화문 동화면세점 앞<br>자리가 정해져 있지 않으니 늦으면 팀이 흩어져요",ja:"光化門 トンファ免税店前<br>座席が決まっていないので、遅れるとチームがばらばらになります"},
+    p:{ko:"탑승 전 단체사진 촬영",ja:"乗車前に集合写真の撮影"}},
+  {t:"19:30",c:{ko:"서울 시티투어버스 탑승 (야간)",ja:"ソウルシティツアーバス乗車（夜間）"},blk:2},
+  {t:"21:30",c:{ko:"헤어짐의 시간",ja:"お別れの時間"}},
+  {t:"22:00",c:{ko:"귀가",ja:"帰宅"},s:{ko:"집에 도착하면 단톡방에 알려주기",ja:"家に着いたら連絡してください"}}]},
+ {label:{ko:"8/23 일",ja:"8/23 日"},rows:[
+  {t:"11:00",c:{ko:"호텔 출발 · 자체 일정",ja:"ホテル出発 · 自由行動"},m:"뉴서울호텔"},
+  {t:"15:05",c:{ko:"인천공항 출발",ja:"仁川空港 出発"},m:"인천국제공항 제1여객터미널"},
+  {t:"17:05",c:{ko:"간사이공항 도착",ja:"関西空港 到着"}}]}
+];
+
+var ICONS=[
+ '<path d="M4 5h9M8.5 3v2M11 5c-.5 5-3.5 8.5-7 10M6.5 8c1 2.5 3 4.7 6 6"/><path d="M13 20l4-9 4 9M14.7 17h4.6"/>',
+ '<path d="M20 13.5c0 3-2.9 5.5-6.5 5.5-.9 0-1.8-.2-2.6-.5L6 20l1.2-3.1C5.2 15.8 4 14.2 4 12.3 4 9.4 6.9 7 10.5 7S20 9.4 20 13.5z"/>',
+ '<rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M8 3v4M16 3v4M3.5 10h17"/><circle cx="12" cy="15" r="1.4" fill="currentColor" stroke="none"/>'
+];
+var TABIDS=["t","p","s"];
+
+/* ═══════════ 가나 → 한글 발음 ═══════════ */
+var KANA={
+"きゃ":"캬","きゅ":"큐","きょ":"쿄","ぎゃ":"갸","ぎゅ":"규","ぎょ":"교",
+"しゃ":"샤","しゅ":"슈","しょ":"쇼","じゃ":"자","じゅ":"주","じょ":"조",
+"ちゃ":"차","ちゅ":"추","ちょ":"초","にゃ":"냐","にゅ":"뉴","にょ":"뇨",
+"ひゃ":"햐","ひゅ":"휴","ひょ":"효","びゃ":"뱌","びゅ":"뷰","びょ":"뵤",
+"ぴゃ":"퍄","ぴゅ":"퓨","ぴょ":"표","みゃ":"먀","みゅ":"뮤","みょ":"묘",
+"りゃ":"랴","りゅ":"류","りょ":"료","しぇ":"셰","じぇ":"제","ちぇ":"체",
+"ふぁ":"파","ふぃ":"피","ふぇ":"페","ふぉ":"포","てぃ":"티","でぃ":"디",
+"うぃ":"위","うぇ":"웨","うぉ":"워","とぅ":"투","どぅ":"두",
+"あ":"아","い":"이","う":"우","え":"에","お":"오",
+"か":"카","き":"키","く":"쿠","け":"케","こ":"코",
+"が":"가","ぎ":"기","ぐ":"구","げ":"게","ご":"고",
+"さ":"사","し":"시","す":"스","せ":"세","そ":"소",
+"ざ":"자","じ":"지","ず":"즈","ぜ":"제","ぞ":"조",
+"た":"타","ち":"치","つ":"츠","て":"테","と":"토",
+"だ":"다","ぢ":"지","づ":"즈","で":"데","ど":"도",
+"な":"나","に":"니","ぬ":"누","ね":"네","の":"노",
+"は":"하","ひ":"히","ふ":"후","へ":"헤","ほ":"호",
+"ば":"바","び":"비","ぶ":"부","べ":"베","ぼ":"보",
+"ぱ":"파","ぴ":"피","ぷ":"푸","ぺ":"페","ぽ":"포",
+"ま":"마","み":"미","む":"무","め":"메","も":"모",
+"や":"야","ゆ":"유","よ":"요",
+"ら":"라","り":"리","る":"루","れ":"레","ろ":"로",
+"わ":"와","ゐ":"이","ゑ":"에","を":"오","ゔ":"부"
+};
+function addFinal(str,fin){
+  if(!str)return str;
+  var last=str.charCodeAt(str.length-1);
+  if(last<0xAC00||last>0xD7A3)return str;
+  if((last-0xAC00)%28!==0)return str;
+  return str.slice(0,-1)+String.fromCharCode(last+fin);
+}
+function longVowel(out,ch){
+  if(!out)return ch;
+  var p=out.charCodeAt(out.length-1);
+  if(p<0xAC00||p>0xD7A3)return ch;
+  var med=Math.floor(((p-0xAC00)%588)/28);
+  if(ch==="우"&&(med===8||med===13||med===12||med===17))return "-";
+  if(ch==="이"&&(med===5||med===1||med===20))return "-";
+  return ch;
+}
+function kanaToHangul(text){
+  var s="";
+  for(var i=0;i<text.length;i++){
+    var c=text.charCodeAt(i);
+    s+=(c>=0x30A1&&c<=0x30F6)?String.fromCharCode(c-0x60):text[i];
+  }
+  var out="",j=0;
+  while(j<s.length){
+    var two=s.substr(j,2);
+    if(two.length===2&&KANA[two]){out+=longVowel(out,KANA[two]);j+=2;continue;}
+    var one=s[j];
+    if(one==="っ"){out=addFinal(out,19);j++;continue;}
+    if(one==="ん"){out=addFinal(out,4)||(out+"ㄴ");j++;continue;}
+    if(one==="ー"||one==="－"){out+="-";j++;continue;}
+    if(KANA[one]){out+=longVowel(out,KANA[one]);j++;continue;}
+    out+=one;j++;
+  }
+  return out;
+}
+function hasKana(s){return /[\u3040-\u30FF]/.test(s);}
+function hasHangul(s){return /[\uAC00-\uD7AF]/.test(s);}
+
+/* ═══════════ 저장소 ═══════════ */
+var mem={};
+async function saveVal(k,v){
+  try{ if(window.storage&&window.storage.set){await window.storage.set(k,v);return;} }catch(e){}
+  try{ localStorage.setItem(k,v);return; }catch(e){}
+  mem[k]=v;
+}
+async function loadVal(k){
+  try{ if(window.storage&&window.storage.get){var r=await window.storage.get(k);if(r&&r.value)return r.value;} }catch(e){}
+  try{ var l=localStorage.getItem(k); if(l)return l; }catch(e){}
+  return mem[k]||null;
+}
+
+/* ═══════════ 번역 ═══════════ */
+async function translateClaude(text,toJa){
+  var target=toJa?"일본어":"한국어";
+  var readLabel=toJa
+    ?"일본어 번역문을 한국 학생이 소리 내어 읽도록 한글로 적습니다. 장음은 '-'로 표기합니다."
+    :"한국어 번역문을 일본 학생이 소리 내어 읽도록 가타카나로 적습니다.";
+  var prompt="한국 중학생과 일본 중학생이 홈스테이 교류 중에 서로 대화하려고 쓰는 번역기입니다.\n\n다음 문장을 "+target+"로 번역하세요.\n\n문장: "+text+
+  "\n\n규칙:\n- 중학생끼리 쓰는 자연스럽고 친근한 말투로 번역합니다.\n- 어른(선생님·부모님)에게 하는 말로 보이면 정중한 말투로 번역합니다.\n- reading에는 "+readLabel+
+  "\n- note는 문화·표현상 알아두면 좋은 점이 있을 때만 한 문장, 없으면 빈 문자열.\n\nJSON만 출력하세요.\n{\"target\":\"번역문\",\"reading\":\"발음\",\"note\":\"\"}";
+  var headers={"Content-Type":"application/json"};
+  if(CONFIG.apiKey){
+    headers["x-api-key"]=CONFIG.apiKey;
+    headers["anthropic-version"]="2023-06-01";
+    headers["anthropic-dangerous-direct-browser-access"]="true";
+  }
+  var res=await fetch("https://api.anthropic.com/v1/messages",{
+    method:"POST",headers:headers,
+    body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1000,messages:[{role:"user",content:prompt}]})
+  });
+  if(!res.ok)throw new Error("api");
+  var data=await res.json();
+  var raw=data.content.filter(function(b){return b.type==="text";})
+    .map(function(b){return b.text;}).join("").replace(/```json|```/g,"").trim();
+  return JSON.parse(raw);
+}
+async function translateFree(text,toJa){
+  var url="https://api.mymemory.translated.net/get?q="+encodeURIComponent(text)+"&langpair="+(toJa?"ko|ja":"ja|ko");
+  var res=await fetch(url);
+  if(!res.ok)throw new Error("free");
+  var d=await res.json();
+  var tx=d&&d.responseData&&d.responseData.translatedText;
+  if(!tx)throw new Error("free");
+  return {target:tx, reading:toJa?kanaToHangul(tx):"", note:""};
+}
+async function doTranslate(text,toJa){
+  try{ return await translateClaude(text,toJa); }
+  catch(e){ return await translateFree(text,toJa); }
+}
+
+/* ═══════════ 상태 ═══════════ */
+var state={tab:"t",toJa:true,open:{},out:null,busy:false,err:"",copied:false,src:"",cat:0,day:2,done:{}};
+var view=document.getElementById("view");
+var tabsEl=document.getElementById("tabs");
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){
+  return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+
+function renderChrome(){
+  var labels=t("tabs");
+  tabsEl.innerHTML=TABIDS.map(function(id,i){
+    return '<button class="tab" data-on="'+(state.tab===id?1:0)+'" data-tab="'+id+'">'+
+      '<svg viewBox="0 0 24 24">'+ICONS[i]+'</svg><span>'+labels[i]+'</span></button>';
+  }).join("");
+  document.getElementById("bt").textContent=t("brand");
+  document.getElementById("lang").querySelectorAll("button").forEach(function(b){
+    b.dataset.on=(b.dataset.lang===L)?"1":"0";
+  });
+}
+
+/* ── 번역 ── */
+function viewTranslate(){
+  var o=state.out;
+  return '<div class="wrap"><div class="h-lg">'+(L==="ko"?"무슨 말을 하고 싶나요?":"何を伝えたいですか？")+'</div></div>'+
+   '<div class="card">'+
+   '<div class="dirbar">'+
+    '<span>'+(state.toJa?"한국어":"日本語")+'</span>'+
+    '<button class="swap" data-act="swap" aria-label="swap">⇄</button>'+
+    '<span>'+(state.toJa?"日本語":"한국어")+'</span>'+
+   '</div>'+
+   '<textarea id="src" placeholder="'+esc(t("placeholder"))+'">'+esc(state.src)+'</textarea>'+
+   '<div class="gowrap"><button class="btn" data-act="go"'+(state.src.trim()&&!state.busy?"":" disabled")+'>'+
+     (state.busy?'<span class="spin"></span>'+t("going"):t("go"))+'</button></div>'+
+   (state.err?'<div class="err">'+esc(state.err)+'</div>':'')+
+   (o?'<div class="out">'+
+      '<div class="out-lbl">'+(state.toJa?"日本語":"한국어")+'</div>'+
+      '<div class="out-main">'+esc(o.target)+'</div>'+
+      (o.reading?'<div class="out-read">'+esc(o.reading)+'</div>':'')+
+      (o.note?'<div class="out-note">'+esc(o.note)+'</div>':'')+
+      '<button class="copy" data-act="copy">'+(state.copied?t("copied"):t("copy"))+'</button>'+
+    '</div>':'')+
+   '</div>'+
+   '<div class="sec" style="padding-bottom:12px"><div class="micro">'+t("quickLabel")+'</div></div>'+
+   '<div class="strip">'+QUICK[L].map(function(q){
+     return '<button data-quick="'+esc(q)+'">'+esc(q)+'</button>';}).join("")+'</div>'+
+   '<p class="note">'+t("transNote")+'</p>';
+}
+
+/* ── 미션 ── */
+function missionBlock(bi){
+  var b=BLOCKS[bi], kinds=t("kinds"), open=state.open[bi]?1:0;
+  var dn=b.missions.filter(function(m,mi){return state.done[bi+"-"+mi];}).length;
+  var h='<div class="mblk" data-open="'+open+'"><button class="mblk-h" data-blk="'+bi+'"><span>'+
+    '<b>'+t("missionLbl")+' '+b.missions.length+'</b>'+
+    '<i>'+x(b.title)+' · '+t("doneLbl")+' '+dn+'</i></span>'+
+    '<svg class="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>';
+  if(!open) return h+'</div>';
+  h+='<div class="mblk-b"><div class="teams">'+b.teams.map(function(tm){
+      return '<div class="team"><span class="tn kr">'+tm.kr.map(nmKr).join("")+'</span>'+
+        '<span class="badge">'+tm.tag+'</span><span class="tn jp">'+tm.jp.map(nmJp).join("")+'</span></div>';
+    }).join("")+'</div><div class="mlist">'+b.missions.map(function(m,mi){
+      var key=bi+"-"+mi;
+      return '<button class="ms" data-done="'+(state.done[key]?1:0)+'" data-key="'+key+'">'+
+        '<span class="chk">✓</span><span>'+
+        '<span class="ms-k">'+kinds[m.k]+'</span>'+
+        '<span class="ms-t">'+esc(x(m.t))+'</span>'+
+        (x(m.s)?'<span class="ms-s">'+esc(x(m.s))+'</span>':'')+
+        '</span></button>';
+    }).join("")+'</div></div>';
+  return h+'</div>';
+}
+
+/* ── 회화 ── */
+function viewPhrases(){
+  var mineKo=(L==="ko");
+  return '<div class="wrap"><div class="h-lg">'+(mineKo?"바로 보여줄 수 있는 말":"すぐ見せられる言葉")+'</div>'+
+   '<div class="cap-sm" style="margin-top:6px">'+t("offline")+'</div></div>'+
+   '<div class="strip">'+CATS.map(function(c,i){
+     return '<button data-on="'+(state.cat===i?1:0)+'" data-cat="'+i+'">'+x(c)+'</button>';}).join("")+'</div>'+
+   '<div class="card">'+PHRASES[state.cat].map(function(p){
+     return '<div class="ph">'+
+       '<div class="ph-main">'+esc(mineKo?p.ja:p.ko)+'</div>'+
+       '<div class="ph-read">'+esc(mineKo?p.rk:p.rj)+'</div>'+
+       '<div class="ph-sub">'+esc(mineKo?p.ko:p.ja)+'</div></div>';}).join("")+'</div>'+
+   '<p class="note">'+t("phraseNote")+'</p>';
+}
+
+/* ── 일정 (라이브) ── */
+var EVENT_DATES=["2026-08-20","2026-08-21","2026-08-22","2026-08-23"];
+function ymd(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
+function mins(hhmm){var a=hhmm.split(":");return (+a[0])*60+(+a[1]);}
+function todayIndex(){return EVENT_DATES.indexOf(ymd(new Date()));}
+function liveIndex(dayIdx){
+  if(todayIndex()!==dayIdx)return -1;
+  var now=new Date(), m=now.getHours()*60+now.getMinutes();
+  var rows=DAYS[dayIdx].rows, cur=-1;
+  for(var i=0;i<rows.length;i++){ if(mins(rows[i].t)<=m) cur=i; else break; }
+  return cur;
+}
+function clockCard(){
+  var now=new Date();
+  var hh=String(now.getHours()).padStart(2,"0"), mm=String(now.getMinutes()).padStart(2,"0");
+  var ti=todayIndex(), body="";
+  if(ti<0){
+    var diff=Math.ceil((new Date(2026,7,20)-now)/86400000);
+    body='<div class="clock-a"><div class="clock-l">'+(diff>0?"D-"+diff:"—")+'</div>'+
+         '<div class="clock-c">'+(diff>0?t("beforeMsg"):t("afterMsg"))+'</div></div>';
+  } else {
+    var li=liveIndex(ti), rows=DAYS[ti].rows;
+    if(li<0){
+      body='<div class="clock-a"><div class="clock-l">'+t("soonLbl")+'</div>'+
+           '<div class="clock-c">'+esc(x(rows[0].c))+'</div>'+
+           '<div class="clock-x">'+rows[0].t+'</div></div>';
+    } else {
+      var nx=rows[li+1];
+      body='<div class="clock-a"><div class="clock-l">'+t("nowLbl")+'</div>'+
+           '<div class="clock-c"><span class="pulse"></span>'+esc(x(rows[li].c))+'</div>'+
+           (nx?'<div class="clock-x">'+t("nextLbl")+' · '+nx.t+' '+esc(x(nx.c))+'</div>':'')+'</div>';
+    }
+  }
+  return '<div class="clock"><div class="clock-t">'+hh+':'+mm+'</div>'+
+    '<div class="clock-d">'+(ti>=0?esc(x(DAYS[ti].label)):"2026. 8. 20 — 8. 23")+'</div>'+body+'</div>';
+}
+function viewSchedule(){
+  var d=DAYS[state.day], li=liveIndex(state.day), ti=todayIndex();
+  var h=clockCard();
+  h+='<div class="strip">'+DAYS.map(function(dd,i){
+     return '<button data-on="'+(state.day===i?1:0)+'" data-day="'+i+'">'+x(dd.label)+
+       (i===ti?'<span class="dot"></span>':'')+'</button>';}).join("")+'</div>';
+  if(d.mission){
+    var tot=0,cnt=0;
+    BLOCKS.forEach(function(bb,bi){tot+=bb.missions.length;
+      bb.missions.forEach(function(m,mi){if(state.done[bi+"-"+mi])cnt++;});});
+    h+='<div class="prog"><div><div class="micro">'+t("missionDone")+'</div>'+
+      '<div class="cap-sm" style="margin-top:4px">'+(L==="ko"?"순위는 없어요":"順位はありません")+'</div></div>'+
+      '<div style="text-align:right"><div class="prog-n">'+cnt+'<span> / '+tot+'</span></div>'+
+      '<div class="bar"><i style="width:'+(tot?cnt/tot*100:0)+'%"></i></div></div></div>';
+  }
+  h+='<div class="tl">'+d.rows.map(function(r,i){
+     var st=li<0?"":(i<li?"past":(i===li?"now":""));
+     return '<div class="row"'+(st?' data-st="'+st+'"':'')+'><div class="row-t">'+r.t+'</div>'+
+       '<div class="row-c">'+esc(x(r.c))+(r.s?'<small class="row-s">'+x(r.s)+'</small>':'')+
+       (r.p?'<span class="row-p"><svg viewBox="0 0 24 24"><path d="M4 8.5h3l1.5-2.5h7L17 8.5h3a1.5 1.5 0 011.5 1.5v7a1.5 1.5 0 01-1.5 1.5H4A1.5 1.5 0 012.5 17v-7A1.5 1.5 0 014 8.5z"/><circle cx="12" cy="13" r="3.2"/></svg>'+esc(x(r.p))+'</span>':'')+
+       (r.m?'<a class="row-m" href="https://map.naver.com/p/search/'+encodeURIComponent(r.m)+'" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path d="M12 21s7-5.7 7-11a7 7 0 10-14 0c0 5.3 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>'+t("mapLbl")+'</a>':'')+
+       '</div></div>'+(r.blk!=null?missionBlock(r.blk):"");
+   }).join("")+'</div>';
+  if(d.mission) h+='<p class="note">'+t("missionNote")+'</p>';
+  if(d.prep) h+='<div class="prep"><div class="micro">'+t("prepTitle")+'</div><p>'+t("prep")+'</p></div>';
+  h+='<div class="sos"><div class="sos-l">'+t("sosTitle")+'</div>'+
+    '<p>'+t("sos1")+'</p><p>'+t("sos2")+'</p>'+
+    '<a class="call" href="tel:+821020064862">'+x(CONFIG.teacherTel)+'</a>'+
+    '<p style="margin-top:10px;text-align:center;font-size:13px">'+t("sosWho")+' '+x(CONFIG.teacherName)+'</p></div>'+
+   '<div class="sec" style="padding-bottom:12px"><div class="micro">'+t("pairsTitle")+'</div></div>'+
+   '<div class="card">'+PAIRS.map(function(p){
+     return '<div class="team"><span class="tn kr">'+nmKr(p.kr)+'</span>'+
+       '<span class="badge">'+p.cls+'</span><span class="tn jp">'+nmJp(p.jp)+'</span></div>';
+   }).join("")+'</div>';
+  return h;
+}
+
+function render(){
+  document.body.dataset.lang=L;
+  document.documentElement.lang=L;
+  renderChrome();
+  view.innerHTML = state.tab==="t"?viewTranslate()
+                 : state.tab==="p"?viewPhrases()
+                 : viewSchedule();
+  var ta=document.getElementById("src");
+  if(ta){
+    ta.style.height="auto"; ta.style.height=Math.max(110,ta.scrollHeight)+"px";
+    ta.addEventListener("input",function(){
+      state.src=ta.value;
+      ta.style.height="auto"; ta.style.height=Math.max(110,ta.scrollHeight)+"px";
+      var v=ta.value;
+      if(v.trim()){
+        if(hasKana(v)&&!hasHangul(v))state.toJa=false;
+        else if(hasHangul(v))state.toJa=true;
+      }
+      var btn=view.querySelector(".btn");
+      if(btn)btn.disabled=!v.trim()||state.busy;
+    });
+  }
+}
+
+async function runTranslate(){
+  var text=state.src.trim();
+  if(!text||state.busy)return;
+  state.busy=true;state.err="";state.out=null;state.copied=false;render();
+  try{ state.out=await doTranslate(text,state.toJa); }
+  catch(e){ state.err=t("err"); }
+  state.busy=false;render();
+}
+
+document.addEventListener("click",function(e){
+  var el=e.target.closest("[data-tab],[data-act],[data-quick],[data-key],[data-cat],[data-day],[data-blk],[data-lang]");
+  if(!el)return;
+  if(el.dataset.lang){
+    L=el.dataset.lang; state.toJa=(L==="ko"); state.out=null; state.src="";
+    saveVal("lang",L); render(); return;
+  }
+  if(el.dataset.tab){state.tab=el.dataset.tab;render();return;}
+  if(el.dataset.cat!==undefined&&el.dataset.cat!==""){state.cat=+el.dataset.cat;render();return;}
+  if(el.dataset.day!==undefined&&el.dataset.day!==""){state.day=+el.dataset.day;render();return;}
+  if(el.dataset.quick){state.src=el.dataset.quick;state.toJa=(L==="ko");state.out=null;render();return;}
+  if(el.dataset.blk!==undefined&&el.dataset.blk!==""){
+    var bi=+el.dataset.blk;
+    state.open[bi]=!state.open[bi];
+    render();return;
+  }
+  if(el.dataset.key){
+    var k=el.dataset.key;
+    state.done[k]=!state.done[k];
+    saveVal("missions-0822",JSON.stringify(state.done));
+    render();return;
+  }
+  var a=el.dataset.act;
+  if(a==="swap"){state.toJa=!state.toJa;state.out=null;render();return;}
+  if(a==="go"){runTranslate();return;}
+  if(a==="copy"&&state.out){
+    var ta2=document.createElement("textarea");
+    ta2.value=state.out.target;ta2.style.position="fixed";ta2.style.opacity="0";
+    document.body.appendChild(ta2);ta2.select();
+    try{document.execCommand("copy");state.copied=true;render();
+      setTimeout(function(){state.copied=false;render();},1600);}catch(err){}
+    document.body.removeChild(ta2);
+  }
+});
+
+(async function init(){
+  var lg=await loadVal("lang");
+  if(lg==="ja"||lg==="ko"){L=lg;state.toJa=(L==="ko");}
+  else if((navigator.language||"").indexOf("ja")===0){L="ja";state.toJa=false;}
+  var saved=await loadVal("missions-0822");
+  if(saved){try{state.done=JSON.parse(saved);}catch(e){}}
+  var ti=todayIndex();
+  if(ti>=0){state.day=ti;state.tab="s";}
+  render();
+  setInterval(function(){ if(state.tab==="s") render(); },60000);
+})();
+</script>
+</body>
+</html>
