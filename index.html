@@ -76,9 +76,25 @@ a{color:inherit}
   display:grid;place-items:center;font-size:15px;color:var(--ink);flex-shrink:0;
   transition:transform .35s cubic-bezier(.4,0,.2,1)}
 .swap:active{transform:rotate(180deg)}
-#src{width:100%;min-height:110px;resize:none;border:none;background:transparent;
-  padding:20px 16px 12px;font-family:inherit;font-size:16px;line-height:1.5;color:var(--ink)}
+#src{display:block;width:100%;min-height:110px;resize:none;border:none;background:transparent;
+  padding:20px 16px 12px;font-family:inherit;font-size:16px;line-height:1.5;color:var(--ink);
+  -webkit-appearance:none;appearance:none;border-radius:0;
+  -webkit-user-select:text;user-select:text;touch-action:manipulation;
+  pointer-events:auto;opacity:1;z-index:1;position:relative}
+#src:focus{outline:none}
 #src::placeholder{color:var(--muted-s)}
+.microw{display:flex;gap:8px;padding:0 16px 14px}
+.mic{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;
+  height:46px;border-radius:9999px;border:1px solid var(--hair);background:var(--canvas);
+  font-size:14px;font-weight:600;color:var(--ink);transition:background .15s,border-color .15s}
+.mic svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.8;
+  stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.mic:active{background:var(--soft)}
+.mic[data-on="1"]{background:var(--rausch);border-color:var(--rausch);color:#fff}
+.mic[data-on="1"] .mdot{animation:mdot 1s ease-in-out infinite}
+@keyframes mdot{0%,100%{opacity:1}50%{opacity:.2}}
+.micmsg{padding:0 16px 14px;font-size:13px;line-height:1.5;color:var(--muted)}
+.micmsg[data-err="1"]{color:var(--rausch-a)}
 .gowrap{padding:0 16px 16px}
 .out{border-top:1px solid var(--hair-s);padding:24px 16px;animation:rise .25s ease-out}
 @keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
@@ -97,7 +113,24 @@ a{color:inherit}
 @keyframes sp{to{transform:rotate(360deg)}}
 
 /* ─── phrases ─── */
-.ph{padding:16px;border-bottom:1px solid var(--hair-s)}
+.ph{padding:16px;border-bottom:1px solid var(--hair-s);display:flex;gap:12px;align-items:flex-start}
+.ph-tx{flex:1;min-width:0}
+.say{width:42px;height:42px;border-radius:9999px;border:1px solid var(--hair);
+  background:var(--canvas);display:grid;place-items:center;flex-shrink:0;margin-top:2px;
+  transition:background .15s,border-color .15s}
+.say svg{width:19px;height:19px;stroke:var(--ink);fill:none;stroke-width:1.7;
+  stroke-linecap:round;stroke-linejoin:round}
+.say:active{background:var(--soft)}
+.say[data-on="1"]{background:var(--rausch);border-color:var(--rausch)}
+.say[data-on="1"] svg{stroke:#fff}
+.say[data-on="1"] .wv{animation:wv .9s ease-in-out infinite}
+@keyframes wv{0%,100%{opacity:1}50%{opacity:.25}}
+.say-out{display:inline-grid;place-items:center;width:44px;height:44px;border-radius:9999px;
+  border:1px solid var(--hair);background:var(--canvas);vertical-align:middle;margin-left:10px}
+.say-out svg{width:20px;height:20px;stroke:var(--ink);fill:none;stroke-width:1.7;
+  stroke-linecap:round;stroke-linejoin:round}
+.say-out[data-on="1"]{background:var(--rausch);border-color:var(--rausch)}
+.say-out[data-on="1"] svg{stroke:#fff}
 .ph:last-child{border-bottom:none}
 .ph-main{font-size:16px;font-weight:600;line-height:1.35}
 .ph-read{font-size:14px;font-weight:500;line-height:1.43;color:var(--rausch);margin-top:5px}
@@ -270,6 +303,16 @@ var T={
   tabs:{ko:["번역","회화","일정"],ja:["翻訳","会話","日程"]},
   mapLbl:{ko:"지도",ja:"地図"},
   missionLbl:{ko:"미션",ja:"ミッション"},
+  sayLbl:{ko:"소리로 듣기",ja:"音声で聞く"},
+  micKo:{ko:"한국어로 말하기",ja:"韓国語で話す"},
+  micJa:{ko:"일본어로 말하기",ja:"日本語で話す"},
+  micOn:{ko:"듣고 있어요. 또박또박 말해보세요.",ja:"聞いています。はっきり話してみてください。"},
+  micDone:{ko:"입력됐어요. 틀린 곳은 직접 고쳐도 됩니다.",ja:"入力されました。間違いは直接直せます。"},
+  micDeny:{ko:"마이크 권한이 필요합니다. 브라우저 설정에서 마이크를 허용해 주세요.",ja:"マイクの許可が必要です。ブラウザの設定で許可してください。"},
+  micNone:{ko:"소리가 들리지 않았어요. 다시 눌러 말해보세요.",ja:"音声が聞こえませんでした。もう一度押して話してください。"},
+  micNet:{ko:"인터넷 연결이 필요합니다. 연결 후 다시 시도해 주세요.",ja:"インターネット接続が必要です。接続してからもう一度お試しください。"},
+  micFail:{ko:"음성 입력에 실패했어요. 직접 입력해 주세요.",ja:"音声入力に失敗しました。直接入力してください。"},
+  micNo:{ko:"이 브라우저는 음성 입력을 지원하지 않아요. 직접 입력해 주세요.",ja:"このブラウザは音声入力に対応していません。直接入力してください。"},
   doneLbl:{ko:"완료",ja:"完了"},
   placeholder:{ko:"하고 싶은 말을 적어보세요",ja:"話したいことを入力してください"},
   go:{ko:"번역하기",ja:"翻訳する"},
@@ -280,9 +323,11 @@ var T={
   err:{ko:"번역을 가져오지 못했습니다. 인터넷을 확인하고 다시 눌러주세요. 급할 때는 '회화' 탭의 문장을 그대로 보여주면 됩니다.",
        ja:"翻訳できませんでした。通信を確認してもう一度押してください。急ぐときは「会話」タブの文をそのまま見せてください。"},
   quickLabel:{ko:"자주 쓰는 말",ja:"よく使う言葉"},
+  micNote:{ko:"🎤 버튼을 누르고 말하면 글자로 바뀝니다. 파트너에게 폰을 건네고 일본어 버튼을 누르게 해도 됩니다. 인터넷 연결이 필요해요.",ja:"🎤 ボタンを押して話すと文字になります。相手にスマホを渡して韓国語ボタンを押してもらってもOKです。インターネット接続が必要です。"},
   transNote:{ko:"화면을 파트너에게 보여주면서 쓰면 훨씬 잘 통합니다. 발음이 적혀 있으니 직접 소리 내어 읽어보세요. 틀려도 괜찮습니다. 읽어보려는 것만으로도 상대는 고마워합니다.",
              ja:"画面をパートナーに見せながら使うと、ずっとよく伝わります。読み方が書いてあるので、声に出して読んでみてください。間違っても大丈夫。読もうとするだけで相手は嬉しくなります。"},
   offline:{ko:"인터넷이 안 돼도 쓸 수 있습니다",ja:"通信がなくても使えます"},
+  phraseNoteTTS:{ko:"🔊 버튼을 누르면 소리로 읽어줍니다. 파트너에게 화면을 보여주면서 같이 들으면 훨씬 잘 통해요.",ja:"🔊 ボタンを押すと音声で読み上げます。相手に画面を見せながら一緒に聞くと、ぐっと伝わりやすくなります。"},
   phraseNote:{ko:"위쪽 문장은 상대에게 보여주고, 붉은 글씨는 내가 소리 내어 읽으면 됩니다.",
               ja:"上の文は相手に見せて、赤い文字を自分で声に出して読んでください。"},
   missionDone:{ko:"내가 해낸 미션",ja:"やってみたミッション"},
@@ -415,12 +460,12 @@ var CATS=[
 var PHRASES=[
 [
  {ko:"만나서 반가워",ja:"はじめまして、会えてうれしいです",rk:"하지메마시테, 아에테 우레시-데스",rj:"マンナソ パンガウォ"},
- {ko:"내 이름은 ○○야",ja:"わたしの名前は○○です",rk:"와타시노 나마에와 ○○데스",rj:"ネ イルムン ○○ヤ"},
+ {ko:"내 이름은 ○○야",ja:"わたしの名前は○○です",rk:"와타시노 나마에와 ○○데스",rj:"ネ イルムン ○○ヤ",sy:{ja:"わたしの名前はハルトです",ko:"내 이름은 수아야"}},
  {ko:"잘 부탁해",ja:"よろしくおねがいします",rk:"요로시쿠 오네가이시마스",rj:"チャル プタケ"},
  {ko:"우리 집에 온 걸 환영해",ja:"わが家へようこそ",rk:"와가야에 요-코소",rj:"ウリ チベ オン ゴル ファニョンヘ"},
  {ko:"오는 데 힘들지 않았어?",ja:"来るの大変じゃなかった？",rk:"쿠루노 타이헨쟈 나캇타?",rj:"オヌン デ ヒムドゥルジ アナッソ?"},
  {ko:"몇 학년이야?",ja:"何年生？",rk:"난넨세-?",rj:"ミョッ ハンニョニヤ?"},
- {ko:"나는 ○학년이야",ja:"わたしは○年生です",rk:"와타시와 ○넨세-데스",rj:"ナヌン ○ハンニョニヤ"},
+ {ko:"나는 ○학년이야",ja:"わたしは○年生です",rk:"와타시와 ○넨세-데스",rj:"ナヌン ○ハンニョニヤ",sy:{ja:"わたしは二年生です",ko:"나는 2학년이야"}},
  {ko:"천천히 말해줘",ja:"ゆっくり話してね",rk:"윳쿠리 하나시테네",rj:"チョンチョニ マレジョ"},
  {ko:"다시 한번 말해줄래?",ja:"もう一度言ってくれる？",rk:"모- 이치도 잇테쿠레루?",rj:"タシ ハンボン マレジュルレ?"},
  {ko:"번역기 쓸게",ja:"翻訳アプリを使うね",rk:"혼야쿠 아푸리오 츠카우네",rj:"ポニョッキ ススルケ"}
@@ -453,7 +498,7 @@ var PHRASES=[
 ],[
  {ko:"여기가 우리 교실이야",ja:"ここがわたしたちの教室だよ",rk:"코코가 와타시타치노 쿄-시츠다요",rj:"ヨギガ ウリ キョシリヤ"},
  {ko:"여기 앉아",ja:"ここに座って",rk:"코코니 스왓테",rj:"ヨギ アンジャ"},
- {ko:"다음은 ○○ 수업이야",ja:"次は○○の授業だよ",rk:"츠기와 ○○노 쥬교-다요",rj:"タウムン ○○ スオビヤ"},
+ {ko:"다음은 ○○ 수업이야",ja:"次は○○の授業だよ",rk:"츠기와 ○○노 쥬교-다요",rj:"タウムン ○○ スオビヤ",sy:{ja:"次は数学の授業だよ",ko:"다음은 수학 수업이야"}},
  {ko:"지금은 쉬는 시간이야",ja:"いまは休み時間だよ",rk:"이마와 야스미지칸다요",rj:"チグムン シュィヌン シガニヤ"},
  {ko:"교과서 같이 보자",ja:"教科書、一緒に見よう",rk:"쿄-카쇼, 잇쇼니 미요-",rj:"キョグァソ カチ ポジャ"},
  {ko:"내가 설명해줄게",ja:"わたしが説明するね",rk:"와타시가 세츠메-스루네",rj:"ネガ ソルミョンヘジュルケ"},
@@ -719,13 +764,20 @@ function viewTranslate(){
     '<button class="swap" data-act="swap" aria-label="swap">⇄</button>'+
     '<span>'+(state.toJa?"日本語":"한국어")+'</span>'+
    '</div>'+
-   '<textarea id="src" placeholder="'+esc(t("placeholder"))+'">'+esc(state.src)+'</textarea>'+
+   '<textarea id="src" rows="3" inputmode="text" enterkeyhint="done" '+
+     'autocomplete="off" autocorrect="off" autocapitalize="sentences" spellcheck="false" '+
+     'placeholder="'+esc(t("placeholder"))+'">'+esc(state.src)+'</textarea>'+
+   (STT?'<div class="microw">'+
+     '<button class="mic" data-on="0" data-mic="ko-KR">'+micIcon()+t("micKo")+'</button>'+
+     '<button class="mic" data-on="0" data-mic="ja-JP">'+micIcon()+t("micJa")+'</button>'+
+    '</div><div class="micmsg" id="micmsg" data-err="0"></div>':'')+
    '<div class="gowrap"><button class="btn" data-act="go"'+(state.src.trim()&&!state.busy?"":" disabled")+'>'+
      (state.busy?'<span class="spin"></span>'+t("going"):t("go"))+'</button></div>'+
    (state.err?'<div class="err">'+esc(state.err)+'</div>':'')+
    (o?'<div class="out">'+
       '<div class="out-lbl">'+(state.toJa?"日本語":"한국어")+'</div>'+
-      '<div class="out-main">'+esc(o.target)+'</div>'+
+      '<div class="out-main">'+esc(o.target)+
+        (TTS?'<button class="say-out" data-on="0" data-say="'+esc(o.target)+'" data-lg="'+(state.toJa?"ja-JP":"ko-KR")+'" aria-label="'+t("sayLbl")+'">'+sayIcon()+'</button>':'')+'</div>'+
       (o.reading?'<div class="out-read">'+esc(o.reading)+'</div>':'')+
       (o.note?'<div class="out-note">'+esc(o.note)+'</div>':'')+
       '<button class="copy" data-act="copy">'+(state.copied?t("copied"):t("copy"))+'</button>'+
@@ -734,6 +786,7 @@ function viewTranslate(){
    '<div class="sec" style="padding-bottom:12px"><div class="micro">'+t("quickLabel")+'</div></div>'+
    '<div class="strip">'+QUICK[L].map(function(q){
      return '<button data-quick="'+esc(q)+'">'+esc(q)+'</button>';}).join("")+'</div>'+
+   (STT?'<p class="note">'+t("micNote")+'</p>':'')+
    '<p class="note">'+t("transNote")+'</p>';
 }
 
@@ -761,18 +814,130 @@ function missionBlock(bi){
   return h+'</div>';
 }
 
+/* ═══════════ 음성으로 입력 ═══════════ */
+var SR = window.SpeechRecognition || window.webkitSpeechRecognition || null;
+var STT = !!SR;
+var recObj=null, recLang=null, recBase="", recFinal="";
+
+function micIcon(){
+  return '<svg viewBox="0 0 24 24"><rect class="mdot" x="9" y="2.5" width="6" height="11" rx="3"/>'+
+    '<path d="M5.5 11a6.5 6.5 0 0013 0M12 17.5V21M9 21h6"/></svg>';
+}
+function micMsg(txt,isErr){
+  var el=document.getElementById("micmsg");
+  if(!el)return;
+  el.textContent=txt||"";
+  el.dataset.err=isErr?"1":"0";
+}
+function micOff(){
+  document.querySelectorAll(".mic").forEach(function(b){b.dataset.on="0";});
+}
+function stopRec(){
+  if(recObj){ try{ recObj.stop(); }catch(e){} }
+  recObj=null; recLang=null; micOff();
+}
+function startRec(lang,btn){
+  if(!STT){ micMsg(t("micNo"),true); return; }
+  if(recObj){ var same=(recLang===lang); stopRec(); if(same)return; }
+  if(TTS){ try{ window.speechSynthesis.cancel(); }catch(e){} clearSay(); }
+  var ta=document.getElementById("src");
+  if(!ta)return;
+  var r;
+  try{ r=new SR(); }catch(e){ micMsg(t("micNo"),true); return; }
+  r.lang=lang; r.interimResults=true; r.continuous=false; r.maxAlternatives=1;
+  recObj=r; recLang=lang; recBase=ta.value.trim(); recFinal="";
+  micOff(); if(btn)btn.dataset.on="1";
+  micMsg(t("micOn"),false);
+
+  r.onresult=function(e){
+    var itm="";
+    for(var i=e.resultIndex;i<e.results.length;i++){
+      var res=e.results[i];
+      if(res.isFinal) recFinal+=res[0].transcript;
+      else itm+=res[0].transcript;
+    }
+    var el=document.getElementById("src"); if(!el)return;
+    el.value=(recBase?recBase+" ":"")+recFinal+itm;
+    onSrcInput(el);
+  };
+  r.onerror=function(e){
+    var c=e&&e.error;
+    micMsg(c==="not-allowed"||c==="service-not-allowed" ? t("micDeny")
+         : c==="no-speech" ? t("micNone")
+         : c==="network" ? t("micNet") : t("micFail"), true);
+    recObj=null; recLang=null; micOff();
+  };
+  r.onend=function(){
+    recObj=null; recLang=null; micOff();
+    var el=document.getElementById("src");
+    if(el&&el.value.trim()) micMsg(t("micDone"),false);
+  };
+  try{ r.start(); }
+  catch(e){ recObj=null;recLang=null;micOff();micMsg(t("micFail"),true); }
+}
+
+/* ═══════════ 음성 읽어주기 ═══════════ */
+var TTS = ("speechSynthesis" in window) && ("SpeechSynthesisUtterance" in window);
+var VOICES=[];
+function loadVoices(){ try{ VOICES=window.speechSynthesis.getVoices()||[]; }catch(e){ VOICES=[]; } }
+if(TTS){
+  loadVoices();
+  try{ window.speechSynthesis.onvoiceschanged=loadVoices; }catch(e){}
+}
+function pickVoice(lang){
+  if(!VOICES.length) loadVoices();
+  var pre=lang.slice(0,2);
+  var exact=VOICES.filter(function(v){return v.lang&&v.lang.replace("_","-")===lang;});
+  if(exact.length){
+    var local=exact.filter(function(v){return v.localService;});
+    return (local[0]||exact[0]);
+  }
+  var loose=VOICES.filter(function(v){return v.lang&&v.lang.slice(0,2)===pre;});
+  return loose[0]||null;
+}
+function sayIcon(){
+  return '<svg viewBox="0 0 24 24"><path d="M4 9.5h3.2L12 5.5v13l-4.8-4H4z"/>'+
+    '<path class="wv" d="M16 9.4a3.6 3.6 0 010 5.2M18.6 7a7 7 0 010 10"/></svg>';
+}
+function clearSay(){
+  document.querySelectorAll('[data-on="1"].say,[data-on="1"].say-out').forEach(function(b){b.dataset.on="0";});
+}
+function speak(txt,lang,btn){
+  if(!TTS) return;
+  var sy=window.speechSynthesis, wasOn=(btn&&btn.dataset.on==="1");
+  try{ sy.cancel(); }catch(e){}
+  clearSay();
+  if(wasOn) return;
+  var clean=String(txt).replace(/[○◯]+/g,"").replace(/\s+/g," ").trim();
+  if(!clean) return;
+  var u=new SpeechSynthesisUtterance(clean);
+  u.lang=lang; u.rate=0.85; u.pitch=1; u.volume=1;
+  var v=pickVoice(lang); if(v) u.voice=v;
+  if(btn){
+    btn.dataset.on="1";
+    u.onend=function(){ btn.dataset.on="0"; };
+    u.onerror=function(){ btn.dataset.on="0"; };
+  }
+  try{ sy.speak(u); }catch(e){ if(btn) btn.dataset.on="0"; }
+}
+
 /* ── 회화 ── */
 function viewPhrases(){
   var mineKo=(L==="ko");
   return '<div class="wrap"><div class="h-lg">'+(mineKo?"바로 보여줄 수 있는 말":"すぐ見せられる言葉")+'</div>'+
-   '<div class="cap-sm" style="margin-top:6px">'+t("offline")+'</div></div>'+
+   '<div class="cap-sm" style="margin-top:6px">'+t("offline")+(TTS?' · '+t("sayLbl"):'')+'</div></div>'+
    '<div class="strip">'+CATS.map(function(c,i){
      return '<button data-on="'+(state.cat===i?1:0)+'" data-cat="'+i+'">'+x(c)+'</button>';}).join("")+'</div>'+
    '<div class="card">'+PHRASES[state.cat].map(function(p){
-     return '<div class="ph">'+
-       '<div class="ph-main">'+esc(mineKo?p.ja:p.ko)+'</div>'+
+     var main=mineKo?p.ja:p.ko, lg=mineKo?"ja-JP":"ko-KR";
+     var say=p.sy?(mineKo?p.sy.ja:p.sy.ko):main;
+     return '<div class="ph"><div class="ph-tx">'+
+       '<div class="ph-main">'+esc(main)+'</div>'+
        '<div class="ph-read">'+esc(mineKo?p.rk:p.rj)+'</div>'+
-       '<div class="ph-sub">'+esc(mineKo?p.ko:p.ja)+'</div></div>';}).join("")+'</div>'+
+       '<div class="ph-sub">'+esc(mineKo?p.ko:p.ja)+'</div></div>'+
+       (TTS?'<button class="say" data-on="0" data-say="'+esc(say)+'" data-lg="'+lg+'" aria-label="'+t("sayLbl")+'">'+sayIcon()+'</button>':'')+
+       '</div>';}).join("")+'</div>'+
+   (TTS?'<p class="note">'+t("phraseNoteTTS")+'</p>':'')+
    '<p class="note">'+t("phraseNote")+'</p>';
 }
 
@@ -850,26 +1015,63 @@ function viewSchedule(){
 }
 
 function render(){
+  var prev=document.getElementById("src");
+  var hadFocus=!!(prev&&document.activeElement===prev);
+  var caret=hadFocus?prev.selectionStart:null;
+  if(TTS){ try{ window.speechSynthesis.cancel(); }catch(e){} }
+  if(recObj) stopRec();
   document.body.dataset.lang=L;
   document.documentElement.lang=L;
   renderChrome();
   view.innerHTML = state.tab==="t"?viewTranslate()
                  : state.tab==="p"?viewPhrases()
                  : viewSchedule();
+  bindSrc(hadFocus,caret);
+}
+
+/* 번역 입력창 — 렌더로 파괴돼도 포커스·커서를 되살린다 */
+function autoGrow(ta){
+  try{ ta.style.height="auto"; ta.style.height=Math.max(110,ta.scrollHeight)+"px"; }catch(e){}
+}
+function syncDir(){
+  try{
+    var sp=view.querySelectorAll(".dirbar span");
+    if(sp.length===2){
+      sp[0].textContent=state.toJa?"한국어":"日本語";
+      sp[1].textContent=state.toJa?"日本語":"한국어";
+    }
+  }catch(e){}
+}
+function onSrcInput(ta){
+  try{
+    var v=ta.value;
+    state.src=v;
+    autoGrow(ta);
+    if(v.trim()){
+      if(hasKana(v)&&!hasHangul(v))state.toJa=false;
+      else if(hasHangul(v))state.toJa=true;
+      syncDir();
+    }
+    var btn=view.querySelector(".btn");
+    if(btn)btn.disabled=!v.trim()||state.busy;
+  }catch(e){
+    /* 어떤 예외가 나도 타이핑 자체는 막지 않는다 */
+    try{ state.src=ta.value; }catch(e2){}
+  }
+}
+function bindSrc(refocus,caret){
   var ta=document.getElementById("src");
-  if(ta){
-    ta.style.height="auto"; ta.style.height=Math.max(110,ta.scrollHeight)+"px";
-    ta.addEventListener("input",function(){
-      state.src=ta.value;
-      ta.style.height="auto"; ta.style.height=Math.max(110,ta.scrollHeight)+"px";
-      var v=ta.value;
-      if(v.trim()){
-        if(hasKana(v)&&!hasHangul(v))state.toJa=false;
-        else if(hasHangul(v))state.toJa=true;
-      }
-      var btn=view.querySelector(".btn");
-      if(btn)btn.disabled=!v.trim()||state.busy;
-    });
+  if(!ta)return;
+  autoGrow(ta);
+  ta.addEventListener("input",function(){onSrcInput(ta);});
+  ta.addEventListener("compositionend",function(){onSrcInput(ta);});
+  ta.addEventListener("change",function(){onSrcInput(ta);});
+  if(refocus){
+    try{
+      ta.focus({preventScroll:true});
+      var pos=(caret==null?ta.value.length:Math.min(caret,ta.value.length));
+      ta.setSelectionRange(pos,pos);
+    }catch(e){ try{ ta.focus(); }catch(e2){} }
   }
 }
 
@@ -882,9 +1084,30 @@ async function runTranslate(){
   state.busy=false;render();
 }
 
+function legacyCopy(txt,cb){
+  var ta2=document.createElement("textarea");
+  ta2.value=txt;ta2.setAttribute("readonly","");
+  ta2.style.position="fixed";ta2.style.top="0";ta2.style.opacity="0";
+  document.body.appendChild(ta2);
+  try{ ta2.select();ta2.setSelectionRange(0,ta2.value.length);
+    if(document.execCommand("copy"))cb(); }catch(e){}
+  try{ document.body.removeChild(ta2); }catch(e){}
+}
+
 document.addEventListener("click",function(e){
-  var el=e.target.closest("[data-tab],[data-act],[data-quick],[data-key],[data-cat],[data-day],[data-blk],[data-lang]");
+  var el=e.target.closest("[data-mic],[data-say],[data-tab],[data-act],[data-quick],[data-key],[data-cat],[data-day],[data-blk],[data-lang]");
   if(!el)return;
+  if(el.dataset.mic!==undefined){
+    var lg=el.dataset.mic;
+    state.toJa=(lg==="ko-KR");
+    syncDir();
+    startRec(lg,el);
+    return;
+  }
+  if(el.dataset.say!==undefined){
+    speak(el.dataset.say, el.dataset.lg||"ko-KR", el);
+    return;
+  }
   if(el.dataset.lang){
     L=el.dataset.lang; state.toJa=(L==="ko"); state.out=null; state.src="";
     saveVal("lang",L); render(); return;
@@ -908,12 +1131,13 @@ document.addEventListener("click",function(e){
   if(a==="swap"){state.toJa=!state.toJa;state.out=null;render();return;}
   if(a==="go"){runTranslate();return;}
   if(a==="copy"&&state.out){
-    var ta2=document.createElement("textarea");
-    ta2.value=state.out.target;ta2.style.position="fixed";ta2.style.opacity="0";
-    document.body.appendChild(ta2);ta2.select();
-    try{document.execCommand("copy");state.copied=true;render();
-      setTimeout(function(){state.copied=false;render();},1600);}catch(err){}
-    document.body.removeChild(ta2);
+    var txt=state.out.target, done=function(){
+      state.copied=true;render();
+      setTimeout(function(){state.copied=false;render();},1600);
+    };
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(txt).then(done).catch(function(){legacyCopy(txt,done);});
+    }else legacyCopy(txt,done);
   }
 });
 
