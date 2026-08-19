@@ -669,8 +669,12 @@ function longVowel(out,ch){
   var p=out.charCodeAt(out.length-1);
   if(p<0xAC00||p>0xD7A3)return ch;
   var med=Math.floor(((p-0xAC00)%588)/28);
-  if(ch==="우"&&(med===8||med===13||med===12||med===17))return "-";
-  if(ch==="이"&&(med===5||med===1||med===20))return "-";
+  /* 장음: 앞 음절의 모음과 이어지면 '-' 로 적는다 (パートナー → 파-토나-) */
+  if(ch==="우"&&(med===8||med===12||med===13||med===17))return "-";   /* ㅗㅛㅜㅠ + う */
+  if(ch==="이"&&(med===1||med===5||med===20))return "-";              /* ㅐㅔㅣ + い */
+  if(ch==="아"&&(med===0||med===2||med===9))return "-";               /* ㅏㅑㅘ + あ */
+  if(ch==="에"&&(med===1||med===3||med===5||med===7))return "-";      /* ㅐㅒㅔㅖ + え */
+  if(ch==="오"&&(med===8||med===12))return "-";                       /* ㅗㅛ + お */
   return ch;
 }
 function hasKanji(s){return /[\u4E00-\u9FFF\u3400-\u4DBF]/.test(String(s));}
@@ -872,12 +876,16 @@ var RM={
  "bya":"びゃ","byu":"びゅ","byo":"びょ","pya":"ぴゃ","pyu":"ぴゅ","pyo":"ぴょ",
  "mya":"みゃ","myu":"みゅ","myo":"みょ","rya":"りゃ","ryu":"りゅ","ryo":"りょ",
  "shi":"し","chi":"ち","tsu":"つ",
+ "she":"しぇ","che":"ちぇ","je":"じぇ",
+ "fa":"ふぁ","fi":"ふぃ","fe":"ふぇ","fo":"ふぉ",
+ "va":"ば","vi":"び","vu":"ぶ","ve":"べ","vo":"ぼ",
+ "tsa":"つぁ","tsi":"つぃ","tse":"つぇ","tso":"つぉ",
  "ka":"か","ki":"き","ku":"く","ke":"け","ko":"こ",
  "ga":"が","gi":"ぎ","gu":"ぐ","ge":"げ","go":"ご",
  "sa":"さ","si":"し","su":"す","se":"せ","so":"そ",
  "za":"ざ","ji":"じ","zi":"じ","zu":"ず","ze":"ぜ","zo":"ぞ",
- "ta":"た","ti":"ち","tu":"つ","te":"て","to":"と",
- "da":"だ","di":"ぢ","du":"づ","de":"で","do":"ど",
+ "ta":"た","ti":"てぃ","tu":"とぅ","te":"て","to":"と",
+ "da":"だ","di":"でぃ","du":"どぅ","de":"で","do":"ど",
  "na":"な","ni":"に","nu":"ぬ","ne":"ね","no":"の",
  "ha":"は","hi":"ひ","fu":"ふ","hu":"ふ","he":"へ","ho":"ほ",
  "ba":"ば","bi":"び","bu":"ぶ","be":"べ","bo":"ぼ",
@@ -917,8 +925,24 @@ function romajiToKana(src){
   }
   return out;
 }
+/* 한국어 로마자(국어의 로마자 표기법)인지 가려낸다.
+   hangang-e / gass-eossneunde 처럼 형태소 하이픈·eo·eu 는 일본어 로마자에 없다.
+   (mae·koe 처럼 ae·oe 는 일본어에도 흔하므로 신호로 쓰지 않는다) */
+function looksKoreanRomaji(s){
+  var v=String(s||"").toLowerCase();
+  if(!v)return false;
+  return /[a-z]-[a-z]/.test(v) || /eu/.test(v) || /(^|\s)eo/.test(v) || /ss(n|g|d|b|j)/.test(v);
+}
+/* 번역문 쪽 발음을 우선 쓰고, 한국어 로마자로 보이면 버린다 */
+function pickRomaji(rmTarget,rmSource){
+  var a=String(rmTarget||"").trim(), b=String(rmSource||"").trim();
+  if(a&&!looksKoreanRomaji(a))return a;
+  if(b&&!looksKoreanRomaji(b))return b;
+  return "";
+}
 function romajiReading(rm){
   if(!rm)return "";
+  if(looksKoreanRomaji(rm))return "";
   var r=kanaToHangul(romajiToKana(rm));
   return readingOk(r)?r:"";
 }
@@ -1172,14 +1196,18 @@ async function translateGoogle(text,toJa){
   if(!res.ok)throw new Error("g");
   var d=await res.json();
   if(!d||!d[0]||!d[0].length)throw new Error("g");
-  var tx="",rm="";
+  /* dt=rm 세그먼트는 [null, null, "번역문 발음", "원문 발음"] 형태다.
+     2번이 '번역된 쪽'(일본어 로마자), 3번은 '입력한 쪽'(한국어 로마자)이다.
+     예전 코드는 3번을 먼저 집어서 한국어를 그대로 읽어 주고 있었다. */
+  var tx="",rmT="",rmS="";
   for(var i=0;i<d[0].length;i++){
     var seg=d[0][i]; if(!seg)continue;
-    if(seg[0]) tx+=seg[0];
-    if(seg[3]&&!seg[0]) rm+=seg[3]+" ";
-    else if(seg[2]&&!seg[0]) rm+=seg[2]+" ";
+    if(seg[0]){ tx+=seg[0]; continue; }
+    if(seg[2]) rmT+=seg[2]+" ";
+    if(seg[3]) rmS+=seg[3]+" ";
   }
-  tx=String(tx).trim(); rm=String(rm).trim();
+  tx=String(tx).trim();
+  var rm=pickRomaji(rmT,rmS);
   if(!tx)throw new Error("g");
   var rd="";
   if(toJa){
@@ -1204,9 +1232,14 @@ async function fetchRomaji(ja){
   var res=await fetchTimeout(url,6000);
   if(!res.ok)throw new Error("rm");
   var d=await res.json();
-  var rm="";
-  if(d&&d[0])for(var i=0;i<d[0].length;i++){ var g=d[0][i]; if(g&&g[3]) rm+=g[3]+" "; }
-  return rm.trim();
+  /* 여기서는 일본어가 '원문'이므로 3번(원문 발음)이 로마자다. 없으면 2번을 쓴다. */
+  var a="",b="";
+  if(d&&d[0])for(var i=0;i<d[0].length;i++){
+    var g=d[0][i]; if(!g||g[0])continue;
+    if(g[3]) a+=g[3]+" ";
+    if(g[2]) b+=g[2]+" ";
+  }
+  return pickRomaji(a,b);
 }
 /* 어떤 경로로 왔든 발음을 반드시 채운다 */
 async function withReading(r,toJa){
