@@ -124,6 +124,13 @@ a{color:inherit}
 .say[data-on="1"]{background:var(--rausch);border-color:var(--rausch)}
 .say[data-on="1"] svg{stroke:#fff}
 .say[data-on="1"] .wv{animation:wv .9s ease-in-out infinite}
+.ph-sub{display:flex;align-items:center;gap:8px}
+.say-s{width:28px;height:28px;border-radius:9999px;border:1px solid var(--hair);
+  background:var(--canvas);display:grid;place-items:center;flex-shrink:0}
+.say-s svg{width:13px;height:13px;stroke:var(--muted);fill:none;stroke-width:1.8;
+  stroke-linecap:round;stroke-linejoin:round}
+.say-s[data-on="1"]{background:var(--rausch);border-color:var(--rausch)}
+.say-s[data-on="1"] svg{stroke:#fff}
 @keyframes wv{0%,100%{opacity:1}50%{opacity:.25}}
 .say-out{display:inline-grid;place-items:center;width:44px;height:44px;border-radius:9999px;
   border:1px solid var(--hair);background:var(--canvas);vertical-align:middle;margin-left:10px}
@@ -294,13 +301,14 @@ a{color:inherit}
 var CONFIG = {
   teacherName:{ko:"김진우 선생님",ja:"キム・ジヌ先生"},
   teacherTel:{ko:"010-2006-4862",ja:"+82-10-2006-4862"},
-  apiKey:""     // ← 비워두면 무료 번역 엔진 사용
+  apiKey:"",    // 여기에 키를 직접 넣지 마세요 (공개 배포 시 노출됩니다)
+  proxy:""      // ← Cloudflare Worker 주소를 넣으면 자연스러운 번역이 켜집니다
 };
 
 /* ═══════════ UI 문자열 ═══════════ */
 var T={
   brand:{ko:"경희중 × 同志社中",ja:"慶熙中 × 同志社中"},
-  tabs:{ko:["번역","회화","일정"],ja:["翻訳","会話","日程"]},
+  tabs:{ko:["일정","회화","번역"],ja:["日程","会話","翻訳"]},
   mapLbl:{ko:"지도",ja:"地図"},
   missionLbl:{ko:"미션",ja:"ミッション"},
   sayLbl:{ko:"소리로 듣기",ja:"音声で聞く"},
@@ -331,7 +339,7 @@ var T={
   transNote:{ko:"화면을 파트너에게 보여주면서 쓰면 훨씬 잘 통합니다. 발음이 적혀 있으니 직접 소리 내어 읽어보세요. 틀려도 괜찮습니다. 읽어보려는 것만으로도 상대는 고마워합니다.",
              ja:"画面をパートナーに見せながら使うと、ずっとよく伝わります。読み方が書いてあるので、声に出して読んでみてください。間違っても大丈夫。読もうとするだけで相手は嬉しくなります。"},
   offline:{ko:"인터넷이 안 돼도 쓸 수 있습니다",ja:"通信がなくても使えます"},
-  phraseNoteTTS:{ko:"🔊 버튼을 누르면 소리로 읽어줍니다. 파트너에게 화면을 보여주면서 같이 들으면 훨씬 잘 통해요.",ja:"🔊 ボタンを押すと音声で読み上げます。相手に画面を見せながら一緒に聞くと、ぐっと伝わりやすくなります。"},
+  phraseNoteTTS:{ko:"큰 🔊 버튼은 상대 나라 말로, 작은 🔊 버튼은 내 말로 읽어줍니다. 파트너에게 들려줄 때 작은 버튼을 쓰세요.",ja:"大きい🔊は相手の国のことばで、小さい🔊は自分のことばで読み上げます。相手に聞かせるときは小さいボタンを使ってください。"},
   phraseNote:{ko:"위쪽 문장은 상대에게 보여주고, 붉은 글씨는 내가 소리 내어 읽으면 됩니다.",
               ja:"上の文は相手に見せて、赤い文字を自分で声に出して読んでください。"},
   missionDone:{ko:"내가 해낸 미션",ja:"やってみたミッション"},
@@ -617,11 +625,11 @@ var DAYS=[
 ];
 
 var ICONS=[
- '<path d="M4 5h9M8.5 3v2M11 5c-.5 5-3.5 8.5-7 10M6.5 8c1 2.5 3 4.7 6 6"/><path d="M13 20l4-9 4 9M14.7 17h4.6"/>',
+ '<rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M8 3v4M16 3v4M3.5 10h17"/><circle cx="12" cy="15" r="1.4" fill="currentColor" stroke="none"/>',
  '<path d="M20 13.5c0 3-2.9 5.5-6.5 5.5-.9 0-1.8-.2-2.6-.5L6 20l1.2-3.1C5.2 15.8 4 14.2 4 12.3 4 9.4 6.9 7 10.5 7S20 9.4 20 13.5z"/>',
- '<rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M8 3v4M16 3v4M3.5 10h17"/><circle cx="12" cy="15" r="1.4" fill="currentColor" stroke="none"/>'
+ '<path d="M4 5h9M8.5 3v2M11 5c-.5 5-3.5 8.5-7 10M6.5 8c1 2.5 3 4.7 6 6"/><path d="M13 20l4-9 4 9M14.7 17h4.6"/>'
 ];
-var TABIDS=["t","p","s"];
+var TABIDS=["s","p","t"];
 
 /* ═══════════ 가나 → 한글 발음 ═══════════ */
 var KANA={
@@ -729,6 +737,131 @@ async function loadVal(k){
 
 /* ═══════════ 번역 ═══════════ */
 
+
+/* ═══ 한글 → 가타카나 (일본 학생이 한국어를 소리 내어 읽도록) ═══ */
+var CHO_I=["k","kk","n","t","tt","r","m","p","pp","s","ss","","ch","cch","ch","k","t","p","h"];
+var CHO_M=["g","kk","n","d","tt","r","m","b","pp","s","ss","","j","cch","ch","k","t","p","h"];
+var JUNG=["a","e","ya","ye","o","e","yo","ye","o","wa","e","we","yo","u","wo","e","wi","yu","u","i","i"];
+var JONG_K=["","ク","ク","ク","ン","ン","ン","ッ","ル","ク","ム","ル","ル","ル","プ","ル","ム","プ","プ","ッ","ッ","ン","ッ","ッ","ク","ッ","プ","ッ"];
+var KBASE={
+ "":["ア","イ","ウ","エ","オ"], k:["カ","キ","ク","ケ","コ"], g:["ガ","ギ","グ","ゲ","ゴ"],
+ n:["ナ","ニ","ヌ","ネ","ノ"], t:["タ","ティ","トゥ","テ","ト"], d:["ダ","ディ","ドゥ","デ","ド"],
+ r:["ラ","リ","ル","レ","ロ"], m:["マ","ミ","ム","メ","モ"], p:["パ","ピ","プ","ペ","ポ"],
+ b:["バ","ビ","ブ","ベ","ボ"], s:["サ","シ","ス","セ","ソ"], h:["ハ","ヒ","フ","ヘ","ホ"],
+ ch:["チャ","チ","チュ","チェ","チョ"], j:["ジャ","ジ","ジュ","ジェ","ジョ"]
+};
+var KY={ "":["ヤ","ユ","ヨ","イェ"], k:["キャ","キュ","キョ","キェ"], g:["ギャ","ギュ","ギョ","ギェ"],
+ n:["ニャ","ニュ","ニョ","ニェ"], r:["リャ","リュ","リョ","リェ"], m:["ミャ","ミュ","ミョ","ミェ"],
+ p:["ピャ","ピュ","ピョ","ピェ"], b:["ビャ","ビュ","ビョ","ビェ"], s:["シャ","シュ","ショ","シェ"],
+ h:["ヒャ","ヒュ","ヒョ","ヒェ"], t:["チャ","チュ","チョ","チェ"], d:["ジャ","ジュ","ジョ","ジェ"],
+ ch:["チャ","チュ","チョ","チェ"], j:["ジャ","ジュ","ジョ","ジェ"] };
+var KW={ "":["ワ","ウォ","ウェ","ウィ"], k:["クァ","クォ","クェ","クィ"], g:["グァ","グォ","グェ","グィ"],
+ h:["ファ","フォ","フェ","フィ"], s:["スァ","スォ","スェ","シュィ"], ch:["チュァ","チュォ","チュェ","チュィ"], j:["ジュァ","ジュォ","ジュェ","ジュィ"] };
+var VIDX={a:0,i:1,u:2,e:3,o:4};
+
+function syl2kana(cons,vow,head){
+  var tense="";
+  if(cons==="kk"){tense="ッ";cons="k";}
+  else if(cons==="tt"){tense="ッ";cons="t";}
+  else if(cons==="pp"){tense="ッ";cons="p";}
+  else if(cons==="ss"){tense="ッ";cons="s";}
+  else if(cons==="cch"){tense="ッ";cons="ch";}
+  if(head)tense="";
+  var out;
+  if(vow[0]==="y"&&vow.length>1){
+    var yi={ya:0,yu:1,yo:2,ye:3}[vow];
+    var tb=KY[cons]||KY[""];
+    out=(yi!==undefined?tb[yi]:(KBASE[cons]||KBASE[""])[0]);
+  } else if(vow[0]==="w"&&vow.length>1){
+    var wi={wa:0,wo:1,we:2,wi:3}[vow];
+    var wb=KW[cons];
+    if(wb&&wi!==undefined) out=wb[wi];
+    else{
+      var base=(KBASE[cons]||KBASE[""])[2];
+      out=base+({wa:"ァ",wo:"ォ",we:"ェ",wi:"ィ"}[vow]||"");
+    }
+  } else {
+    out=(KBASE[cons]||KBASE[""])[VIDX[vow]!==undefined?VIDX[vow]:0];
+  }
+  return tense+out;
+}
+
+function hangulToKatakana(text){
+  var src=String(text), units=[];
+  for(var i=0;i<src.length;i++){
+    var c=src.charCodeAt(i);
+    if(c>=0xAC00&&c<=0xD7A3){
+      var k=c-0xAC00;
+      units.push({t:"s",cho:Math.floor(k/588),jung:Math.floor((k%588)/28),jong:k%28});
+    } else units.push({t:"c",ch:src[i]});
+  }
+  /* 음운 변동 */
+  for(var i=0;i<units.length-1;i++){
+    var a=units[i], b=units[i+1];
+    if(a.t!=="s"||b.t!=="s")continue;
+    /* 격음화 */
+    if(b.cho===18){
+      if(a.jong===1){a.jong=0;b.cho=15;continue;}
+      if(a.jong===7||a.jong===19||a.jong===20){a.jong=0;b.cho=16;continue;}
+      if(a.jong===17){a.jong=0;b.cho=17;continue;}
+      if(a.jong===22){a.jong=0;b.cho=14;continue;}
+    }
+    if(a.jong===27){
+      if(b.cho===0){a.jong=0;b.cho=15;continue;}
+      if(b.cho===3){a.jong=0;b.cho=16;continue;}
+      if(b.cho===7){a.jong=0;b.cho=17;continue;}
+      if(b.cho===12){a.jong=0;b.cho=14;continue;}
+      a.jong=0;
+    }
+    /* ㅎ 약화 — 말해→마래, 편하게→펴나게 */
+    if(b.cho===18&&(a.jong===4||a.jong===8||a.jong===16)){
+      b.cho={4:2,8:5,16:6}[a.jong]; a.jong=0; continue;
+    }
+    /* 구개음화 — 같이→가치, 굳이→구지 */
+    if(b.cho===11&&b.jung===20&&(a.jong===7||a.jong===25)){
+      b.cho=(a.jong===25?14:12); a.jong=0; continue;
+    }
+    /* 연음 (겹받침 포함) */
+    if(b.cho===11&&a.jong>0&&a.jong!==21){
+      /* 겹받침: [남는 받침, 넘어가는 초성] */
+      var CL={3:[1,9],5:[4,12],6:[0,2],9:[8,0],10:[8,6],11:[8,7],12:[8,9],13:[8,16],14:[8,17],15:[0,5]};
+      var cl=CL[a.jong];
+      if(cl){ a.jong=cl[0]; b.cho=cl[1]; continue; }
+      var mv={1:0,2:1,4:2,7:3,8:5,16:6,17:7,19:9,20:10,22:12,23:14,24:15,25:16,26:17}[a.jong];
+      if(mv!==undefined){ b.cho=mv; a.jong=0; }
+      continue;
+    }
+    /* 비음화 */
+    if(b.cho===2||b.cho===6){
+      if(a.jong===1||a.jong===24){a.jong=21;continue;}
+      if(a.jong===17||a.jong===26){a.jong=16;continue;}
+      if(a.jong===7||a.jong===19||a.jong===20||a.jong===22||a.jong===23||a.jong===25){a.jong=4;continue;}
+    }
+    /* ㄹ 동화 */
+    if(a.jong===4&&b.cho===5){a.jong=8;continue;}
+    if(a.jong===8&&b.cho===2){b.cho=5;continue;}
+  }
+  /* 표기 */
+  var out="",wordStart=true;
+  for(var i=0;i<units.length;i++){
+    var u=units[i];
+    if(u.t==="c"){ out+=u.ch; wordStart=/\s/.test(u.ch)||u.ch==="("; continue; }
+    var pv=null,gap=false;
+    for(var q=i-1;q>=0;q--){ if(units[q].t==="s"){pv=units[q];break;}
+      if(/^[\s(]$/.test(units[q].ch)){gap=true;continue;} pv=null;break; }
+    var voiced = !!pv && !gap && (pv.jong===0||pv.jong===4||pv.jong===8||pv.jong===16||pv.jong===21);
+    var cons=(voiced?CHO_M:CHO_I)[u.cho];
+    var jk=JONG_K[u.jong];
+    if(u.jong&&/^(1|2|3|7|9|17|18|19|20|22|23|24|25|26)$/.test(String(u.jong))){
+      var nu=units[i+1];
+      if(nu&&nu.t==="s"&&nu.cho!==11) jk="ッ";
+    }
+    out+=syl2kana(cons,JUNG[u.jung]||"a",wordStart)+jk;
+    wordStart=false;
+  }
+  return out;
+}
+
 /* ═══ 로마자 → 가나 (구글 번역이 주는 발음을 한글로 옮기기 위해) ═══ */
 var RM={
  "kya":"きゃ","kyu":"きゅ","kyo":"きょ","gya":"ぎゃ","gyu":"ぎゅ","gyo":"ぎょ",
@@ -818,6 +951,127 @@ var EXTRA=[
  {ko:"미안해요",ja:"すみません",rk:"스미마센",rj:"ミアネヨ"},
  {ko:"감사합니다",ja:"ありがとうございます",rk:"아리가토- 고자이마스",rj:"カムサハムニダ"}
 ];
+
+/* 상황별 보강 — rk(한글발음)만 적으면 rj(가타카나)는 자동 생성 */
+var EXTRA2=[
+ /* 아침·저녁 인사 */
+ {ko:"잘 잤어?",ja:"よく眠れた？",rk:"요쿠 네무레타?"},
+ {ko:"좋은 아침",ja:"おはよう",rk:"오하요-"},
+ {ko:"안녕히 주무세요",ja:"おやすみなさい",rk:"오야스미나사이"},
+ {ko:"내일 봐",ja:"また明日",rk:"마타 아시타"},
+ {ko:"다녀오겠습니다",ja:"いってきます",rk:"잇테키마스"},
+ {ko:"다녀왔습니다",ja:"ただいま",rk:"타다이마"},
+ {ko:"어서 와",ja:"おかえり",rk:"오카에리"},
+ /* 집 */
+ {ko:"씻고 올게",ja:"洗ってくるね",rk:"아랏테쿠루네"},
+ {ko:"먼저 씻어",ja:"先に使っていいよ",rk:"사키니 츠캇테 이-요"},
+ {ko:"불 꺼도 돼?",ja:"電気消してもいい？",rk:"덴키 케시테모 이-?"},
+ {ko:"에어컨 켤까?",ja:"エアコンつけようか？",rk:"에아콘 츠케요-카?"},
+ {ko:"추워?",ja:"寒い？",rk:"사무이?"},
+ {ko:"더워?",ja:"暑い？",rk:"아츠이?"},
+ {ko:"창문 열까?",ja:"窓開けようか？",rk:"마도 아케요-카?"},
+ {ko:"짐은 여기 놔도 돼",ja:"荷物はここに置いていいよ",rk:"니모츠와 코코니 오이테 이-요"},
+ {ko:"화장실 써도 돼",ja:"トイレ使っていいよ",rk:"토이레 츠캇테 이-요"},
+ {ko:"우리 부모님이야",ja:"わたしの両親だよ",rk:"와타시노 료-신다요"},
+ {ko:"우리 형이야",ja:"わたしの兄だよ",rk:"와타시노 아니다요"},
+ {ko:"우리 누나야",ja:"わたしの姉だよ",rk:"와타시노 아네다요"},
+ {ko:"우리 동생이야",ja:"わたしの弟だよ",rk:"와타시노 오토-토다요"},
+ /* 식사 */
+ {ko:"아침 먹자",ja:"朝ごはん食べよう",rk:"아사고한 타베요-"},
+ {ko:"저녁 먹자",ja:"夕ごはん食べよう",rk:"유-고한 타베요-"},
+ {ko:"뭐 먹고 싶어?",ja:"何が食べたい？",rk:"나니가 타베타이?"},
+ {ko:"매워?",ja:"辛い？",rk:"카라이?"},
+ {ko:"안 매워",ja:"辛くないよ",rk:"카라쿠나이요"},
+ {ko:"조금만 먹어봐",ja:"少しだけ食べてみて",rk:"스코시다케 타베테미테"},
+ {ko:"싫으면 안 먹어도 돼",ja:"いやなら食べなくていいよ",rk:"이야나라 타베나쿠테 이-요"},
+ {ko:"김치 먹어봤어?",ja:"キムチ食べたことある？",rk:"키무치 타베타 코토 아루?"},
+ {ko:"이거 뭐야?",ja:"これ何？",rk:"코레 나니?"},
+ {ko:"한 번 더 먹을래?",ja:"おかわりする？",rk:"오카와리스루?"},
+ {ko:"음료수 뭐 마실래?",ja:"飲み物なにがいい？",rk:"노미모노 나니가 이-?"},
+ {ko:"편의점 갈까?",ja:"コンビニ行こうか？",rk:"콤비니 이코-카?"},
+ /* 학교 */
+ {ko:"교실은 이쪽이야",ja:"教室はこっちだよ",rk:"쿄-시츠와 콧치다요"},
+ {ko:"신발 갈아 신어야 해",ja:"上履きに履き替えるよ",rk:"우와바키니 하키카에루요"},
+ {ko:"수업 시작이야",ja:"授業が始まるよ",rk:"쥬교-가 하지마루요"},
+ {ko:"수업 끝났어",ja:"授業終わったよ",rk:"쥬교- 오왓타요"},
+ {ko:"필기 보여줄게",ja:"ノート見せてあげる",rk:"노-토 미세테아게루"},
+ {ko:"선생님께 인사하자",ja:"先生に挨拶しよう",rk:"센세-니 아이사츠 시요-"},
+ {ko:"우리 반 친구들이야",ja:"うちのクラスのみんなだよ",rk:"우치노 쿠라스노 민나다요"},
+ {ko:"같이 사진 찍어도 돼?",ja:"一緒に写真撮ってもいい？",rk:"잇쇼니 샤신 톳테모 이-?"},
+ {ko:"급식 맛있어?",ja:"給食おいしい？",rk:"큐-쇼쿠 오이시-?"},
+ {ko:"체육관 가자",ja:"体育館に行こう",rk:"타이이쿠칸니 이코-"},
+ /* 이동·교통 */
+ {ko:"지하철 타자",ja:"地下鉄に乗ろう",rk:"치카테츠니 노로-"},
+ {ko:"버스 타자",ja:"バスに乗ろう",rk:"바스니 노로-"},
+ {ko:"몇 정거장이야?",ja:"何駅ぐらい？",rk:"난에키 구라이?"},
+ {ko:"여기서 내려",ja:"ここで降りるよ",rk:"코코데 오리루요"},
+ {ko:"길 건너자",ja:"道を渡ろう",rk:"미치오 와타로-"},
+ {ko:"조심해",ja:"気をつけて",rk:"키오츠케테"},
+ {ko:"뛰지 마",ja:"走らないで",rk:"하시라나이데"},
+ {ko:"손 잡아",ja:"手をつないで",rk:"테오 츠나이데"},
+ {ko:"여기서 기다리자",ja:"ここで待とう",rk:"코코데 마토-"},
+ {ko:"어디까지 왔어?",ja:"今どこ？",rk:"이마 도코?"},
+ {ko:"거의 다 왔어",ja:"もうすぐ着くよ",rk:"모- 스구 츠쿠요"},
+ {ko:"늦을 것 같아",ja:"遅れそう",rk:"오쿠레소-"},
+ {ko:"먼저 가 있을게",ja:"先に行ってるね",rk:"사키니 잇테루네"},
+ /* 관광·쇼핑 */
+ {ko:"사진 찍어줄까?",ja:"写真撮ろうか？",rk:"샤신 토로-카?"},
+ {ko:"여기 예쁘다",ja:"ここきれいだね",rk:"코코 키레-다네"},
+ {ko:"들어가 보자",ja:"入ってみよう",rk:"하잇테미요-"},
+ {ko:"뭐 사고 싶어?",ja:"何か買いたい？",rk:"나니카 카이타이?"},
+ {ko:"비싸다",ja:"高いね",rk:"타카이네"},
+ {ko:"싸다",ja:"安いね",rk:"야스이네"},
+ {ko:"이거 살래",ja:"これ買う",rk:"코레 카우"},
+ {ko:"돈 있어?",ja:"お金ある？",rk:"오카네 아루?"},
+ {ko:"내가 낼게",ja:"わたしが払うよ",rk:"와타시가 하라우요"},
+ {ko:"같이 나눠 내자",ja:"半分ずつにしよう",rk:"함분즈츠니 시요-"},
+ {ko:"화장실 어디예요?",ja:"トイレはどこですか？",rk:"토이레와 도코데스카?"},
+ {ko:"이거 얼마예요?",ja:"これいくらですか？",rk:"코레 이쿠라데스카?"},
+ {ko:"봉투 주세요",ja:"袋ください",rk:"후쿠로 쿠다사이"},
+ /* 감정·반응 */
+ {ko:"대박",ja:"すごい",rk:"스고이"},
+ {ko:"신기하다",ja:"ふしぎだね",rk:"후시기다네"},
+ {ko:"예쁘다",ja:"かわいいね",rk:"카와이-네"},
+ {ko:"멋있다",ja:"かっこいい",rk:"칵코이-"},
+ {ko:"무서워",ja:"こわい",rk:"코와이"},
+ {ko:"웃겨",ja:"おもしろい",rk:"오모시로이"},
+ {ko:"부럽다",ja:"うらやましい",rk:"우라야마시-"},
+ {ko:"괜찮아 괜찮아",ja:"だいじょうぶだよ",rk:"다이죠-부다요"},
+ {ko:"잘했어",ja:"よくできたね",rk:"요쿠 데키타네"},
+ {ko:"고생했어",ja:"おつかれさま",rk:"오츠카레사마"},
+ {ko:"아쉽다",ja:"ざんねん",rk:"잔넨"},
+ {ko:"보고 싶을 거야",ja:"さびしくなるね",rk:"사비시쿠 나루네"},
+ /* 몸·건강 */
+ {ko:"어디가 아파?",ja:"どこが痛い？",rk:"도코가 이타이?"},
+ {ko:"머리가 아파",ja:"頭が痛い",rk:"아타마가 이타이"},
+ {ko:"열이 나는 것 같아",ja:"熱があるみたい",rk:"네츠가 아루 미타이"},
+ {ko:"약 있어?",ja:"薬ある？",rk:"쿠스리 아루?"},
+ {ko:"병원 갈까?",ja:"病院行く？",rk:"뵤-인 이쿠?"},
+ {ko:"물 좀 마셔",ja:"お水飲んで",rk:"오미즈 논데"},
+ {ko:"앉아서 쉬자",ja:"座って休もう",rk:"스왓테 야스모-"},
+ {ko:"괜찮아질 거야",ja:"きっとよくなるよ",rk:"킷토 요쿠나루요"},
+ {ko:"선생님 부를게",ja:"先生を呼ぶね",rk:"센세-오 요부네"},
+ /* 소통 */
+ {ko:"무슨 뜻이야?",ja:"どういう意味？",rk:"도-이우 이미?"},
+ {ko:"한국어로 뭐라고 해?",ja:"韓国語でなんて言うの？",rk:"칸코쿠고데 난테 이우노?"},
+ {ko:"일본어로 뭐라고 해?",ja:"日本語でなんて言うの？",rk:"니홍고데 난테 이우노?"},
+ {ko:"이거 써줄래?",ja:"これ書いてくれる？",rk:"코레 카이테쿠레루?"},
+ {ko:"영어로 해도 돼",ja:"英語でもいいよ",rk:"에-고데모 이-요"},
+ {ko:"잘 안 들려",ja:"よく聞こえない",rk:"요쿠 키코에나이"},
+ {ko:"미안, 못 알아들었어",ja:"ごめん、わからなかった",rk:"고멘, 와카라나캇타"},
+ {ko:"이해했어",ja:"わかったよ",rk:"와캇타요"},
+ /* 마무리 */
+ {ko:"오늘 고마웠어",ja:"今日はありがとう",rk:"쿄-와 아리가토-"},
+ {ko:"덕분에 즐거웠어",ja:"おかげで楽しかった",rk:"오카게데 타노시캇타"},
+ {ko:"연락할게",ja:"連絡するね",rk:"렌라쿠스루네"},
+ {ko:"라인 알려줘",ja:"LINE教えて",rk:"라인 오시에테"},
+ {ko:"인스타 알려줘",ja:"インスタ教えて",rk:"인스타 오시에테"},
+ {ko:"사진 보내줄게",ja:"写真送るね",rk:"샤신 오쿠루네"},
+ {ko:"조심히 가",ja:"気をつけて帰ってね",rk:"키오츠케테 카엣테네"},
+ {ko:"울지 마",ja:"泣かないで",rk:"나카나이데"},
+ {ko:"겨울에 만나자",ja:"冬に会おうね",rk:"후유니 아오-네"},
+ {ko:"진짜 고마웠어",ja:"本当にありがとう",rk:"혼토-니 아리가토-"}
+];
 var LOCAL=null;
 function normKey(v){
   return String(v).toLowerCase()
@@ -828,18 +1082,40 @@ function buildLocal(){
   LOCAL={ko:{},ja:{}};
   function add(p){
     if(!p.ko||!p.ja)return;
+    var rk=p.rk||safeReading(p.ja);
+    var rj=p.rj||hangulToKatakana(p.ko);
     var k=normKey(p.ko), j=normKey(p.ja);
-    if(!LOCAL.ko[k])LOCAL.ko[k]={target:p.ja,reading:p.rk||""};
-    if(!LOCAL.ja[j])LOCAL.ja[j]={target:p.ko,reading:p.rj||""};
+    if(!LOCAL.ko[k])LOCAL.ko[k]={target:p.ja,reading:rk};
+    if(!LOCAL.ja[j])LOCAL.ja[j]={target:p.ko,reading:rj};
   }
   PHRASES.forEach(function(g){g.forEach(add);});
   EXTRA.forEach(add);
+  EXTRA2.forEach(add);
+}
+/* 말끝이 달라도 같은 문장으로 본다 — 배고파 / 배고파요 / 배고픈데 */
+function keyVariants(raw){
+  var n=normKey(raw), out=[n];
+  function push(v){ if(v&&v.length>1&&out.indexOf(v)<0)out.push(v); }
+  if(/요$/.test(n)) push(n.slice(0,-1)); else push(n+"요");
+  if(/니다$/.test(n)) push(n.slice(0,-3));
+  if(/습니다$/.test(n)) push(n.slice(0,-3));
+  if(/합니다$/.test(n)) push(n.slice(0,-3)+"해");
+  if(/해주세요$/.test(n)) push(n.slice(0,-4)+"해");
+  if(/주세요$/.test(n)) push(n.slice(0,-3));
+  if(/세요$/.test(n)) push(n.slice(0,-2));
+  if(/야$/.test(n)) push(n.slice(0,-1));
+  if(/[다]$/.test(n)) push(n.slice(0,-1));
+  return out;
 }
 function lookupLocal(text,toJa){
   if(!LOCAL)buildLocal();
-  var hit=(toJa?LOCAL.ko:LOCAL.ja)[normKey(text)];
-  if(!hit)return null;
-  return {target:hit.target, reading:hit.reading||"", note:t("fromBook")};
+  var box=(toJa?LOCAL.ko:LOCAL.ja);
+  var keys=toJa?keyVariants(text):[normKey(text)];
+  for(var i=0;i<keys.length;i++){
+    var hit=box[keys[i]];
+    if(hit)return {target:hit.target, reading:hit.reading||"", note:t("fromBook")};
+  }
+  return null;
 }
 
 async function translateClaude(text,toJa){
@@ -856,7 +1132,8 @@ async function translateClaude(text,toJa){
     headers["anthropic-version"]="2023-06-01";
     headers["anthropic-dangerous-direct-browser-access"]="true";
   }
-  var res=await fetch("https://api.anthropic.com/v1/messages",{
+  var ep = CONFIG.proxy ? CONFIG.proxy : "https://api.anthropic.com/v1/messages";
+  var res=await fetchTimeout2(ep,{
     method:"POST",headers:headers,
     body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1000,messages:[{role:"user",content:prompt}]})
   });
@@ -871,6 +1148,13 @@ async function translateClaude(text,toJa){
   if(toJa && !readingOk(r.reading)) r.reading=safeReading(r.target);
   if(toJa && !r.reading) r.note=t("noRead")+(TTS?" "+t("useSay"):"");
   return r;
+}
+function fetchTimeout2(url,opt,ms){
+  var ctl=(typeof AbortController!=="undefined")?new AbortController():null;
+  if(ctl)opt.signal=ctl.signal;
+  var timer=setTimeout(function(){ if(ctl)ctl.abort(); }, ms||12000);
+  return fetch(url,opt).then(function(r){clearTimeout(timer);return r;},
+                             function(e){clearTimeout(timer);throw e;});
 }
 function fetchTimeout(url,ms){
   var ctl = (typeof AbortController!=="undefined") ? new AbortController() : null;
@@ -902,9 +1186,7 @@ async function translateGoogle(text,toJa){
     rd = safeReading(tx);
     if(!rd && rm) rd = romajiReading(rm);
   }
-  var nt=t("autoNote");
-  if(toJa && !rd) nt=t("noRead")+(TTS?" "+t("useSay"):"");
-  return {target:tx, reading:rd, note:nt};
+  return {target:tx, reading:rd, note:t("autoNote"), _rm:rm};
 }
 
 async function translateFree(text,toJa){
@@ -914,25 +1196,56 @@ async function translateFree(text,toJa){
   var d=await res.json();
   var tx=d&&d.responseData&&d.responseData.translatedText;
   if(!tx)throw new Error("free");
-  var rd = toJa ? safeReading(tx) : "";
-  var nt = t("autoNote");
-  if(toJa && !rd) nt = t("noRead") + (TTS ? " " + t("useSay") : "");
-  return {target:tx, reading:rd, note:nt};
+  return {target:tx, reading:toJa?safeReading(tx):"", note:t("autoNote")};
 }
+/* 일본어 문장의 로마자 발음만 따로 받아온다 */
+async function fetchRomaji(ja){
+  var url="https://translate.googleapis.com/translate_a/single?client=gtx&dt=rm&sl=ja&tl=en&q="+encodeURIComponent(ja);
+  var res=await fetchTimeout(url,6000);
+  if(!res.ok)throw new Error("rm");
+  var d=await res.json();
+  var rm="";
+  if(d&&d[0])for(var i=0;i<d[0].length;i++){ var g=d[0][i]; if(g&&g[3]) rm+=g[3]+" "; }
+  return rm.trim();
+}
+/* 어떤 경로로 왔든 발음을 반드시 채운다 */
+async function withReading(r,toJa){
+  r.target=String(r.target||""); r.note=String(r.note||"");
+  if(!toJa){
+    /* 한국어 결과 → 가타카나. 인터넷 없이도 항상 가능 */
+    var kt=hangulToKatakana(r.target);
+    r.reading=/[\u4E00-\u9FFF\u3040-\u309F]/.test(kt)?"":kt;
+    if(!r.reading&&r.note===t("autoNote")) r.note=t("noRead")+(TTS?" "+t("useSay"):"");
+    return r;
+  }
+  if(r.reading&&readingOk(r.reading))return r;
+  var rd=safeReading(r.target);
+  if(!rd&&r._rm) rd=romajiReading(r._rm);
+  if(!rd){ try{ var rm=await fetchRomaji(r.target); if(rm) rd=romajiReading(rm); }catch(e){} }
+  r.reading=rd||"";
+  if(!r.reading) r.note=t("noRead")+(TTS?" "+t("useSay"):"");
+  else if(r.note===t("noRead")+(TTS?" "+t("useSay"):"")) r.note=t("autoNote");
+  return r;
+}
+
 async function doTranslate(text,toJa){
   var hit=lookupLocal(text,toJa);
   if(hit)return hit;
+  var r=null;
   /* API 키가 있을 때만 Claude를 쓴다.
      키 없이 미리보기에서만 통하던 경로를 없애, 어디에 올려도 결과가 같도록 한다. */
-  if(CONFIG.apiKey){
-    try{ return await translateClaude(text,toJa); }catch(e){}
+  if(CONFIG.apiKey||CONFIG.proxy){
+    try{ r=await translateClaude(text,toJa); }catch(e){}
   }
-  try{ return await translateGoogle(text,toJa); }
-  catch(e){ return await translateFree(text,toJa); }
+  if(!r){
+    try{ r=await translateGoogle(text,toJa); }
+    catch(e){ r=await translateFree(text,toJa); }
+  }
+  return await withReading(r,toJa);
 }
 
 /* ═══════════ 상태 ═══════════ */
-var state={tab:"t",toJa:true,open:{},out:null,busy:false,err:"",copied:false,src:"",cat:0,day:2,done:{}};
+var state={tab:"s",toJa:true,open:{},out:null,busy:false,err:"",copied:false,src:"",cat:0,day:2,done:{}};
 var view=document.getElementById("view");
 var tabsEl=document.getElementById("tabs");
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){
@@ -1127,10 +1440,15 @@ function viewPhrases(){
    '<div class="card">'+PHRASES[state.cat].map(function(p){
      var main=mineKo?p.ja:p.ko, lg=mineKo?"ja-JP":"ko-KR";
      var say=p.sy?(mineKo?p.sy.ja:p.sy.ko):main;
+     var subRaw=mineKo?p.ko:p.ja;
+     var sub=p.sy?(mineKo?p.sy.ko:p.sy.ja):subRaw;
+     var subLg=mineKo?"ko-KR":"ja-JP";
      return '<div class="ph"><div class="ph-tx">'+
        '<div class="ph-main">'+esc(main)+'</div>'+
        '<div class="ph-read">'+esc(mineKo?p.rk:p.rj)+'</div>'+
-       '<div class="ph-sub">'+esc(mineKo?p.ko:p.ja)+'</div></div>'+
+       '<div class="ph-sub"><span>'+esc(mineKo?p.ko:p.ja)+'</span>'+
+       (TTS?'<button class="say-s" data-on="0" data-say="'+esc(sub)+'" data-lg="'+subLg+'" aria-label="'+t("sayLbl")+'">'+sayIcon()+'</button>':'')+
+       '</div></div>'+
        (TTS?'<button class="say" data-on="0" data-say="'+esc(say)+'" data-lg="'+lg+'" aria-label="'+t("sayLbl")+'">'+sayIcon()+'</button>':'')+
        '</div>';}).join("")+'</div>'+
    (TTS?'<p class="note">'+t("phraseNoteTTS")+'</p>':'')+
